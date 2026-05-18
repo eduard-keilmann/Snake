@@ -124,6 +124,7 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
+      margin-top: 14px;
     }
 
     button {
@@ -277,6 +278,7 @@
     let gameInterval;
     let isRunning;
     let isPaused;
+    let restartConfirmationPending = false;
     let speed;
 
     function resetGame() {
@@ -303,19 +305,37 @@
       isRunning = true;
       isPaused = false;
       pauseButton.textContent = "PAUSE";
+      resetRestartConfirmation();
       overlay.classList.add("hidden");
       gameInterval = setInterval(gameLoop, speed);
     }
 
     function restartGame() {
       clearInterval(gameInterval);
+      resetRestartConfirmation();
       resetGame();
       startGame();
+    }
+
+    function resetRestartConfirmation() {
+      restartConfirmationPending = false;
+      restartButton.textContent = "RESTART";
+    }
+
+    function requestRestart() {
+      if (restartConfirmationPending) {
+        restartGame();
+        return;
+      }
+
+      restartConfirmationPending = true;
+      restartButton.textContent = "CONFIRM";
     }
 
     function pauseGame() {
       if (!isRunning) return;
 
+      resetRestartConfirmation();
       isPaused = !isPaused;
       pauseButton.textContent = isPaused ? "RESUME" : "PAUSE";
 
@@ -477,6 +497,8 @@
       const chosen = directions[newDirection];
       if (!chosen) return;
 
+      resetRestartConfirmation();
+
       const isOpposite =
         chosen.x + direction.x === 0 &&
         chosen.y + direction.y === 0;
@@ -541,7 +563,7 @@
     });
 
     pauseButton.addEventListener("click", pauseGame);
-    restartButton.addEventListener("click", restartGame);
+    restartButton.addEventListener("click", requestRestart);
 
     let touchStartX = 0;
     let touchStartY = 0;
