@@ -25,6 +25,7 @@ No build step, server, or dependency install is required.
 - Mobile: swipe on the game area or use the on-screen direction buttons
 - Space: start, pause, or resume
 - Enter: start when the game is not running
+- Restart: click once to pause and show confirmation, then confirm to restart or cancel to resume
 
 ## Gameplay
 
