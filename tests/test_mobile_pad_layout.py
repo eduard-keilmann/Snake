@@ -35,6 +35,13 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn('cancelButton.addEventListener("click", cancelRestartConfirmation);', self.html)
         self.assertIn('restartButton.addEventListener("click", requestRestart);', self.html)
 
+    def test_mobile_buttons_trigger_haptic_feedback_when_supported(self):
+        self.assertIn("function vibrate(pattern = 12)", self.html)
+        self.assertIn("if (!navigator.vibrate) return;", self.html)
+        self.assertIn("navigator.vibrate(pattern);", self.html)
+        self.assertIn("vibrate();", self.html)
+        self.assertIn("vibrate([18, 40, 18]);", self.html)
+
 
 if __name__ == "__main__":
     unittest.main()
