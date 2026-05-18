@@ -148,26 +148,36 @@
 
     .mobile-pad {
       display: grid;
-      grid-template-columns: 54px 54px 54px;
-      grid-template-rows: 54px 54px 54px;
-      gap: 4px;
+      grid-template-columns: 52px 52px 52px;
+      grid-template-rows: 46px 46px 46px;
+      gap: 2px;
       justify-content: center;
       align-items: center;
     }
 
     .mobile-pad button {
       min-width: 0;
-      width: 54px;
-      height: 54px;
+      width: 52px;
+      height: 52px;
       padding: 0;
       border-radius: 12px;
       font-size: 1.25rem;
     }
 
-    .up { grid-column: 2; grid-row: 1; }
+    .up {
+      grid-column: 2;
+      grid-row: 1;
+      transform: translateY(8px);
+    }
+
     .left { grid-column: 1; grid-row: 2; }
     .right { grid-column: 3; grid-row: 2; }
-    .down { grid-column: 2; grid-row: 3; }
+
+    .down {
+      grid-column: 2;
+      grid-row: 3;
+      transform: translateY(-8px);
+    }
 
     .hint {
       text-align: center;
