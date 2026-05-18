@@ -2,6 +2,10 @@
 
 A simple Nokia-style Snake game implemented as a single HTML file.
 
+## Play
+
+Play the game on GitHub Pages: <https://eduard-keilmann.github.io/Snake/Snake_browser_game.html>
+
 ## Run
 
 Open `Snake_browser_game.html` in a web browser.
@@ -22,4 +26,3 @@ Eat food to increase the score. The snake wraps around screen edges. The game en
 ## Project Structure
 
 - `Snake_browser_game.html`: complete game, including HTML, CSS, and JavaScript
-
