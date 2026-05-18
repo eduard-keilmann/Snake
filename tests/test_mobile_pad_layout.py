@@ -22,8 +22,15 @@ class MobilePadLayoutTest(unittest.TestCase):
 
     def test_restart_button_requires_second_click(self):
         self.assertIn("let restartConfirmationPending = false;", self.html)
+        self.assertIn("let restartConfirmationWasRunning = false;", self.html)
         self.assertIn("function requestRestart()", self.html)
+        self.assertIn("function cancelRestartConfirmation()", self.html)
+        self.assertIn("clearInterval(gameInterval);", self.html)
+        self.assertIn('showOverlay("RESTART?", "Confirm restart or cancel to resume.", "CONFIRM");', self.html)
+        self.assertIn('pauseButton.textContent = "CANCEL";', self.html)
         self.assertIn('restartButton.textContent = "CONFIRM";', self.html)
+        self.assertIn('cancelButton.classList.remove("hidden");', self.html)
+        self.assertIn('cancelButton.addEventListener("click", cancelRestartConfirmation);', self.html)
         self.assertIn('restartButton.addEventListener("click", requestRestart);', self.html)
 
 
