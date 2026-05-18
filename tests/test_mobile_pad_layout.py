@@ -17,6 +17,15 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("top: 42px;", self.html)
         self.assertIn("top: 84px;", self.html)
 
+    def test_action_buttons_have_space_below_d_pad(self):
+        self.assertIn("margin-top: 14px;", self.html)
+
+    def test_restart_button_requires_second_click(self):
+        self.assertIn("let restartConfirmationPending = false;", self.html)
+        self.assertIn("function requestRestart()", self.html)
+        self.assertIn('restartButton.textContent = "CONFIRM";', self.html)
+        self.assertIn('restartButton.addEventListener("click", requestRestart);', self.html)
+
 
 if __name__ == "__main__":
     unittest.main()
