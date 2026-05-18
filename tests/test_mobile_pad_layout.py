@@ -32,8 +32,10 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("restartButton.style.order = 1;", self.html)
         self.assertIn("pauseButton.style.order = 2;", self.html)
         self.assertIn('cancelButton.classList.remove("hidden");', self.html)
-        self.assertIn('cancelButton.addEventListener("click", cancelRestartConfirmation);', self.html)
-        self.assertIn('restartButton.addEventListener("click", requestRestart);', self.html)
+        self.assertIn('cancelButton.addEventListener("click", () => {', self.html)
+        self.assertIn("cancelRestartConfirmation();", self.html)
+        self.assertIn('restartButton.addEventListener("click", () => {', self.html)
+        self.assertIn("requestRestart();", self.html)
 
     def test_mobile_buttons_trigger_haptic_feedback_when_supported(self):
         self.assertIn("function vibrate(pattern = 12)", self.html)

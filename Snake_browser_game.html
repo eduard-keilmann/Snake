@@ -544,6 +544,12 @@
       overlay.classList.remove("hidden");
     }
 
+    function vibrate(pattern = 12) {
+      if (!navigator.vibrate) return;
+
+      navigator.vibrate(pattern);
+    }
+
     function setDirection(newDirection) {
       const chosen = directions[newDirection];
       if (!chosen) return;
@@ -598,6 +604,7 @@
 
     document.querySelectorAll("[data-direction]").forEach(button => {
       button.addEventListener("click", () => {
+        vibrate();
         setDirection(button.dataset.direction);
         if (!isRunning) {
           startGame();
@@ -607,9 +614,12 @@
 
     startButton.addEventListener("click", () => {
       if (restartConfirmationPending) {
+        vibrate([18, 40, 18]);
         restartGame();
         return;
       }
+
+      vibrate();
 
       if (isPaused) {
         pauseGame();
@@ -618,9 +628,20 @@
       }
     });
 
-    cancelButton.addEventListener("click", cancelRestartConfirmation);
-    pauseButton.addEventListener("click", pauseGame);
-    restartButton.addEventListener("click", requestRestart);
+    cancelButton.addEventListener("click", () => {
+      vibrate();
+      cancelRestartConfirmation();
+    });
+
+    pauseButton.addEventListener("click", () => {
+      vibrate();
+      pauseGame();
+    });
+
+    restartButton.addEventListener("click", () => {
+      vibrate(restartConfirmationPending ? [18, 40, 18] : 12);
+      requestRestart();
+    });
 
     let touchStartX = 0;
     let touchStartY = 0;
