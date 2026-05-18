@@ -337,6 +337,8 @@
       restartConfirmationPending = false;
       restartConfirmationWasRunning = false;
       restartButton.textContent = "RESTART";
+      restartButton.style.order = "";
+      pauseButton.style.order = "";
       cancelButton.classList.add("hidden");
     }
 
@@ -350,6 +352,8 @@
       restartConfirmationPending = true;
       restartButton.textContent = "CONFIRM";
       pauseButton.textContent = "CANCEL";
+      restartButton.style.order = 1;
+      pauseButton.style.order = 2;
       cancelButton.classList.remove("hidden");
       showOverlay("RESTART?", "Confirm restart or cancel to resume.", "CONFIRM");
 

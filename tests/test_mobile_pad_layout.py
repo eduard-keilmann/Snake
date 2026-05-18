@@ -29,6 +29,8 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn('showOverlay("RESTART?", "Confirm restart or cancel to resume.", "CONFIRM");', self.html)
         self.assertIn('pauseButton.textContent = "CANCEL";', self.html)
         self.assertIn('restartButton.textContent = "CONFIRM";', self.html)
+        self.assertIn("restartButton.style.order = 1;", self.html)
+        self.assertIn("pauseButton.style.order = 2;", self.html)
         self.assertIn('cancelButton.classList.remove("hidden");', self.html)
         self.assertIn('cancelButton.addEventListener("click", cancelRestartConfirmation);', self.html)
         self.assertIn('restartButton.addEventListener("click", requestRestart);', self.html)
