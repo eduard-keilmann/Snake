@@ -1,4 +1,4 @@
-# Snake Browser Game
+# Schnäcke (pronounce like "snake") Browser Game
 
 A simple Nokia-style Snake game implemented as a single HTML file.
 
