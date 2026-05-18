@@ -32,9 +32,9 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("restartButton.style.order = 1;", self.html)
         self.assertIn("pauseButton.style.order = 2;", self.html)
         self.assertIn('cancelButton.classList.remove("hidden");', self.html)
-        self.assertIn('cancelButton.addEventListener("click", () => {', self.html)
+        self.assertIn('cancelButton.addEventListener("pointerdown", () => {', self.html)
         self.assertIn("cancelRestartConfirmation();", self.html)
-        self.assertIn('restartButton.addEventListener("click", () => {', self.html)
+        self.assertIn('restartButton.addEventListener("pointerdown", () => {', self.html)
         self.assertIn("requestRestart();", self.html)
 
     def test_mobile_buttons_trigger_haptic_feedback_when_supported(self):
@@ -43,6 +43,9 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("navigator.vibrate(pattern);", self.html)
         self.assertIn("vibrate();", self.html)
         self.assertIn("vibrate([18, 40, 18]);", self.html)
+        self.assertIn('button.addEventListener("pointerdown", () => {', self.html)
+        self.assertIn('startButton.addEventListener("pointerdown", () => {', self.html)
+        self.assertIn('pauseButton.addEventListener("pointerdown", () => {', self.html)
 
 
 if __name__ == "__main__":

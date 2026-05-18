@@ -603,7 +603,7 @@
     });
 
     document.querySelectorAll("[data-direction]").forEach(button => {
-      button.addEventListener("click", () => {
+      button.addEventListener("pointerdown", () => {
         vibrate();
         setDirection(button.dataset.direction);
         if (!isRunning) {
@@ -612,7 +612,7 @@
       });
     });
 
-    startButton.addEventListener("click", () => {
+    startButton.addEventListener("pointerdown", () => {
       if (restartConfirmationPending) {
         vibrate([18, 40, 18]);
         restartGame();
@@ -628,17 +628,17 @@
       }
     });
 
-    cancelButton.addEventListener("click", () => {
+    cancelButton.addEventListener("pointerdown", () => {
       vibrate();
       cancelRestartConfirmation();
     });
 
-    pauseButton.addEventListener("click", () => {
+    pauseButton.addEventListener("pointerdown", () => {
       vibrate();
       pauseGame();
     });
 
-    restartButton.addEventListener("click", () => {
+    restartButton.addEventListener("pointerdown", () => {
       vibrate(restartConfirmationPending ? [18, 40, 18] : 12);
       requestRestart();
     });
