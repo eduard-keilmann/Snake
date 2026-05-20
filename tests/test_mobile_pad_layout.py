@@ -10,12 +10,12 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("display: grid;", self.html)
         self.assertIn("grid-template-columns: repeat(3, 1fr);", self.html)
         self.assertIn("grid-template-rows: repeat(3, 1fr);", self.html)
-        self.assertIn("gap: min(12px, 3vw);", self.html)
-        self.assertIn("width: min(240px, 72vw);", self.html)
+        self.assertIn("gap: min(8px, 2vw);", self.html)
+        self.assertIn("width: min(260px, 76vw, 34dvh);", self.html)
         self.assertIn("aspect-ratio: 1;", self.html)
         self.assertIn("width: 100%;", self.html)
         self.assertIn("height: 100%;", self.html)
-        self.assertIn("touch-action: manipulation;", self.html)
+        self.assertIn("touch-action: none;", self.html)
         self.assertIn("-webkit-user-select: none;", self.html)
         self.assertIn("grid-column: 2;", self.html)
         self.assertIn("grid-row: 1;", self.html)
@@ -32,19 +32,19 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn('aria-label="Move right"', self.html)
         self.assertIn('aria-label="Move down"', self.html)
 
-    def test_action_buttons_are_above_d_pad_on_mobile(self):
+    def test_action_buttons_are_below_d_pad_on_mobile(self):
         self.assertIn("@media (max-width: 759px)", self.html)
-        self.assertIn("order: -1;", self.html)
-        self.assertIn("margin-top: 0;", self.html)
-        self.assertIn("margin-bottom: 8px;", self.html)
+        self.assertNotIn("order: -1;", self.html)
+        self.assertIn("margin-top: 16px;", self.html)
 
-    def test_mobile_page_can_scroll_outside_game_surface(self):
+    def test_mobile_page_cannot_scroll(self):
         self.assertIn("min-height: 100dvh;", self.html)
+        self.assertIn("height: 100dvh;", self.html)
+        self.assertIn("overflow: hidden;", self.html)
         self.assertIn(
-            "padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));",
+            "padding-bottom: max(10px, calc(10px + env(safe-area-inset-bottom)));",
             self.html,
         )
-        self.assertIn("touch-action: manipulation;", self.html)
         self.assertIn("touch-action: none;", self.html)
 
     def test_restart_button_requires_second_click(self):
