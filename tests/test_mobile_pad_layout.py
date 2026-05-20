@@ -32,9 +32,20 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn('aria-label="Move right"', self.html)
         self.assertIn('aria-label="Move down"', self.html)
 
-    def test_action_buttons_have_space_below_d_pad(self):
+    def test_action_buttons_are_above_d_pad_on_mobile(self):
         self.assertIn("@media (max-width: 759px)", self.html)
-        self.assertIn("margin-top: 32px;", self.html)
+        self.assertIn("order: -1;", self.html)
+        self.assertIn("margin-top: 0;", self.html)
+        self.assertIn("margin-bottom: 8px;", self.html)
+
+    def test_mobile_page_can_scroll_outside_game_surface(self):
+        self.assertIn("min-height: 100dvh;", self.html)
+        self.assertIn(
+            "padding-bottom: max(16px, calc(16px + env(safe-area-inset-bottom)));",
+            self.html,
+        )
+        self.assertIn("touch-action: manipulation;", self.html)
+        self.assertIn("touch-action: none;", self.html)
 
     def test_restart_button_requires_second_click(self):
         self.assertIn("let restartConfirmationPending = false;", self.html)
