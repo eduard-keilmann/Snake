@@ -36,6 +36,13 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn('aria-label="Move right"', self.html)
         self.assertIn('aria-label="Move down"', self.html)
 
+    def test_help_text_mentions_continuous_swipe_control(self):
+        self.assertIn("Use arrow keys, WASD, continuous swipe, or buttons.", self.html)
+        self.assertIn(
+            "Mobile: Hold finger down and swipe continuously, or use buttons",
+            self.html,
+        )
+
     def test_action_buttons_are_below_d_pad_on_mobile(self):
         self.assertIn("@media (max-width: 759px)", self.html)
         self.assertNotIn("order: -1;", self.html)

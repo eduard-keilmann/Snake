@@ -22,7 +22,7 @@ No build step, server, or dependency install is required.
 ## Controls
 
 - Desktop: arrow keys or WASD
-- Mobile: swipe on the game area or use the on-screen direction buttons
+- Mobile: hold your finger down and swipe continuously anywhere on the page, or use the on-screen direction buttons
 - Space: start, pause, or resume
 - Enter: start when the game is not running
 - Restart: click once to pause and show confirmation, then confirm to restart or cancel to resume
