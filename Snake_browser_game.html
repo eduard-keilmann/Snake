@@ -160,38 +160,38 @@
 
     .mobile-pad {
       position: relative;
-      width: 140px;
-      height: 140px;
+      width: 176px;
+      height: 176px;
     }
 
     .mobile-pad button {
       position: absolute;
       min-width: 0;
-      width: 56px;
-      height: 56px;
+      width: 64px;
+      height: 64px;
       padding: 0;
-      border-radius: 12px;
-      font-size: 1.25rem;
+      border-radius: 14px;
+      font-size: 1.45rem;
     }
 
     .up {
-      left: 42px;
+      left: 56px;
       top: 0;
     }
 
     .left {
       left: 0;
-      top: 42px;
+      top: 56px;
     }
 
     .right {
       right: 0;
-      top: 42px;
+      top: 56px;
     }
 
     .down {
-      left: 42px;
-      top: 84px;
+      left: 56px;
+      top: 112px;
     }
 
     .hint {
@@ -205,6 +205,12 @@
     @media (min-width: 760px) {
       .mobile-pad {
         display: none;
+      }
+    }
+
+    @media (max-width: 759px) {
+      .action-row {
+        margin-top: 32px;
       }
     }
   </style>
