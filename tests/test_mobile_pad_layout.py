@@ -52,9 +52,17 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("touch-action: none;", self.html)
 
     def test_swipe_controls_are_bound_to_whole_page(self):
+        self.assertIn("const swipeThreshold = 24;", self.html)
+        self.assertIn("let touchLastX = null;", self.html)
+        self.assertIn("let touchLastY = null;", self.html)
+        self.assertIn("function applySwipeDirection(newDirection)", self.html)
+        self.assertIn("function handleSwipeMovement(clientX, clientY)", self.html)
         self.assertIn('document.addEventListener("touchstart"', self.html)
+        self.assertIn('document.addEventListener("touchmove"', self.html)
         self.assertIn('document.addEventListener("touchend"', self.html)
+        self.assertIn('document.addEventListener("touchcancel"', self.html)
         self.assertNotIn('canvas.addEventListener("touchstart"', self.html)
+        self.assertNotIn('canvas.addEventListener("touchmove"', self.html)
         self.assertNotIn('canvas.addEventListener("touchend"', self.html)
 
     def test_restart_button_requires_second_click(self):

@@ -36,6 +36,18 @@ class GameOverRestartBehaviorTest(unittest.TestCase):
             self.html,
         )
 
+    def test_swipe_direction_starts_clean_state_before_turning(self):
+        self.assertIn(
+            """function applySwipeDirection(newDirection) {
+      if (!isRunning) {
+        restartGame();
+      }
+
+      setDirection(newDirection);
+    }""",
+            self.html,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

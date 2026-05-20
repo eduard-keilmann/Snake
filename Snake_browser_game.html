@@ -704,33 +704,66 @@
       requestRestart();
     });
 
-    let touchStartX = 0;
-    let touchStartY = 0;
+    const swipeThreshold = 24;
+    let touchLastX = null;
+    let touchLastY = null;
 
-    document.addEventListener("touchstart", event => {
-      const touch = event.changedTouches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-    }, { passive: true });
+    function applySwipeDirection(newDirection) {
+      if (!isRunning) {
+        restartGame();
+      }
 
-    document.addEventListener("touchend", event => {
-      const touch = event.changedTouches[0];
-      const deltaX = touch.clientX - touchStartX;
-      const deltaY = touch.clientY - touchStartY;
+      setDirection(newDirection);
+    }
 
-      if (Math.abs(deltaX) < 24 && Math.abs(deltaY) < 24) {
+    function handleSwipeMovement(clientX, clientY) {
+      if (touchLastX === null || touchLastY === null) {
+        touchLastX = clientX;
+        touchLastY = clientY;
+        return;
+      }
+
+      const deltaX = clientX - touchLastX;
+      const deltaY = clientY - touchLastY;
+
+      if (Math.abs(deltaX) < swipeThreshold && Math.abs(deltaY) < swipeThreshold) {
         return;
       }
 
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        setDirection(deltaX > 0 ? "right" : "left");
+        applySwipeDirection(deltaX > 0 ? "right" : "left");
       } else {
-        setDirection(deltaY > 0 ? "down" : "up");
+        applySwipeDirection(deltaY > 0 ? "down" : "up");
       }
 
-      if (!isRunning) {
-        restartGame();
-      }
+      touchLastX = clientX;
+      touchLastY = clientY;
+    }
+
+    function clearSwipeTracking() {
+      touchLastX = null;
+      touchLastY = null;
+    }
+
+    document.addEventListener("touchstart", event => {
+      const touch = event.changedTouches[0];
+      touchLastX = touch.clientX;
+      touchLastY = touch.clientY;
+    }, { passive: true });
+
+    document.addEventListener("touchmove", event => {
+      const touch = event.changedTouches[0];
+      handleSwipeMovement(touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    document.addEventListener("touchend", event => {
+      const touch = event.changedTouches[0];
+      handleSwipeMovement(touch.clientX, touch.clientY);
+      clearSwipeTracking();
+    }, { passive: true });
+
+    document.addEventListener("touchcancel", () => {
+      clearSwipeTracking();
     }, { passive: true });
 
     resetGame();
