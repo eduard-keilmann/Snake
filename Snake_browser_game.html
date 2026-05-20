@@ -707,13 +707,13 @@
     let touchStartX = 0;
     let touchStartY = 0;
 
-    canvas.addEventListener("touchstart", event => {
+    document.addEventListener("touchstart", event => {
       const touch = event.changedTouches[0];
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
     }, { passive: true });
 
-    canvas.addEventListener("touchend", event => {
+    document.addEventListener("touchend", event => {
       const touch = event.changedTouches[0];
       const deltaX = touch.clientX - touchStartX;
       const deltaY = touch.clientY - touchStartY;
