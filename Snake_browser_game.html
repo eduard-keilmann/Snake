@@ -604,14 +604,14 @@
       if (key === " " || key === "spacebar") {
         event.preventDefault();
         if (!isRunning) {
-          startGame();
+          restartGame();
         } else {
           pauseGame();
         }
       }
 
       if (key === "enter" && !isRunning) {
-        startGame();
+        restartGame();
       }
     });
 
@@ -619,7 +619,7 @@
       button.addEventListener("pointerdown", () => {
         vibrate();
         if (!isRunning) {
-          startGame();
+          restartGame();
         }
         setDirection(button.dataset.direction);
       });
@@ -681,7 +681,7 @@
       }
 
       if (!isRunning) {
-        startGame();
+        restartGame();
       }
     }, { passive: true });
 
