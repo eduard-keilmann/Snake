@@ -7,15 +7,29 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.html = Path("Snake_browser_game.html").read_text(encoding="utf-8")
 
     def test_d_pad_controls_are_compact_for_mobile_play(self):
-        self.assertIn("position: relative;", self.html)
-        self.assertIn("width: 176px;", self.html)
-        self.assertIn("height: 176px;", self.html)
-        self.assertIn("width: 64px;", self.html)
-        self.assertIn("height: 64px;", self.html)
-        self.assertIn("left: 56px;", self.html)
-        self.assertIn("top: 0;", self.html)
-        self.assertIn("top: 56px;", self.html)
-        self.assertIn("top: 112px;", self.html)
+        self.assertIn("display: grid;", self.html)
+        self.assertIn("grid-template-columns: repeat(3, 1fr);", self.html)
+        self.assertIn("grid-template-rows: repeat(3, 1fr);", self.html)
+        self.assertIn("gap: min(12px, 3vw);", self.html)
+        self.assertIn("width: min(240px, 72vw);", self.html)
+        self.assertIn("aspect-ratio: 1;", self.html)
+        self.assertIn("width: 100%;", self.html)
+        self.assertIn("height: 100%;", self.html)
+        self.assertIn("touch-action: manipulation;", self.html)
+        self.assertIn("-webkit-user-select: none;", self.html)
+        self.assertIn("grid-column: 2;", self.html)
+        self.assertIn("grid-row: 1;", self.html)
+        self.assertIn("grid-column: 1;", self.html)
+        self.assertIn("grid-row: 2;", self.html)
+        self.assertIn("grid-column: 3;", self.html)
+        self.assertIn("grid-row: 3;", self.html)
+        self.assertIn(".mobile-pad button:active", self.html)
+
+    def test_d_pad_buttons_have_accessible_direction_names(self):
+        self.assertIn('aria-label="Move up"', self.html)
+        self.assertIn('aria-label="Move left"', self.html)
+        self.assertIn('aria-label="Move right"', self.html)
+        self.assertIn('aria-label="Move down"', self.html)
 
     def test_action_buttons_have_space_below_d_pad(self):
         self.assertIn("@media (max-width: 759px)", self.html)
