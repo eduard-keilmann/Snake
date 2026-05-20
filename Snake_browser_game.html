@@ -299,6 +299,7 @@
     let gameInterval;
     let isRunning;
     let isPaused;
+    let isGameOver;
     let restartConfirmationPending = false;
     let restartConfirmationWasRunning = false;
     let speed;
@@ -316,6 +317,7 @@
       speed = 180;
       isRunning = false;
       isPaused = false;
+      isGameOver = false;
 
       updateScore();
       placeFood();
@@ -323,6 +325,10 @@
     }
 
     function startGame() {
+      if (isGameOver) {
+        resetGame();
+      }
+
       clearInterval(gameInterval);
       isRunning = true;
       isPaused = false;
@@ -539,6 +545,7 @@
       clearInterval(gameInterval);
       isRunning = false;
       isPaused = false;
+      isGameOver = true;
       pauseButton.textContent = "PAUSE";
       showOverlay("GAME OVER", `FINAL SCORE: ${score}`, "PLAY");
     }
@@ -611,10 +618,10 @@
     document.querySelectorAll("[data-direction]").forEach(button => {
       button.addEventListener("pointerdown", () => {
         vibrate();
-        setDirection(button.dataset.direction);
         if (!isRunning) {
           startGame();
         }
+        setDirection(button.dataset.direction);
       });
     });
 
