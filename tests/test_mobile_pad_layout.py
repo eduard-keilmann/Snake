@@ -25,6 +25,10 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("grid-row: 3;", self.html)
         self.assertIn(".mobile-pad button:active", self.html)
         self.assertIn("transform: scale(0.90);", self.html)
+        self.assertIn("--button-active-glow: rgba(190, 255, 118, 0.85);", self.html)
+        self.assertIn("box-shadow 110ms ease-out", self.html)
+        self.assertIn("inset 0 0 0 3px var(--button-active-glow)", self.html)
+        self.assertIn("0 0 18px 7px rgba(190, 255, 118, 0.42)", self.html)
 
     def test_d_pad_buttons_have_accessible_direction_names(self):
         self.assertIn('aria-label="Move up"', self.html)
