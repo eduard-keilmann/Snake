@@ -69,6 +69,13 @@
       letter-spacing: 1px;
     }
 
+    .scoreboard {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
     .screen-area {
       position: relative;
       aspect-ratio: 1 / 1;
@@ -282,7 +289,10 @@
       <div class="screen-top">
         <span>SNAKE</span>
         <button id="soundButton" aria-pressed="true">SOUND ON</button>
-        <span>SCORE <span id="score">0</span></span>
+        <span class="scoreboard">
+          <span>SCORE <span id="score">0</span></span>
+          <span>HIGH <span id="highScore">0</span></span>
+        </span>
       </div>
 
       <div class="screen-area">
@@ -327,6 +337,7 @@
     const context = canvas.getContext("2d");
 
     const scoreElement = document.getElementById("score");
+    const highScoreElement = document.getElementById("highScore");
     const overlay = document.getElementById("overlay");
     const overlayTitle = document.getElementById("overlayTitle");
     const overlayText = document.getElementById("overlayText");
@@ -339,6 +350,7 @@
     const gridSize = 18;
     const tileCount = canvas.width / gridSize;
     const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+    const highScoreStorageKey = "snakeBrowserGameHighScore";
 
     const colors = {
       bg: "#9ead86",
@@ -359,6 +371,7 @@
     let direction;
     let nextDirection;
     let score;
+    let highScore = loadHighScore();
     let gameInterval;
     let isRunning;
     let isPaused;
@@ -475,6 +488,31 @@
           playSound("start");
         });
       }
+    }
+
+    function loadHighScore() {
+      try {
+        const storedHighScore = Number(localStorage.getItem(highScoreStorageKey));
+        return Number.isFinite(storedHighScore) && storedHighScore > 0 ? storedHighScore : 0;
+      } catch {
+        return 0;
+      }
+    }
+
+    function saveHighScore() {
+      try {
+        localStorage.setItem(highScoreStorageKey, String(highScore));
+      } catch {
+        // Storage can be blocked in private mode; the game should still play.
+      }
+    }
+
+    function updateHighScore() {
+      if (score <= highScore) return;
+
+      highScore = score;
+      highScoreElement.textContent = highScore;
+      saveHighScore();
     }
 
     function resetGame() {
@@ -758,6 +796,8 @@
 
     function updateScore() {
       scoreElement.textContent = score;
+      highScoreElement.textContent = highScore;
+      updateHighScore();
     }
 
     function endGame() {
