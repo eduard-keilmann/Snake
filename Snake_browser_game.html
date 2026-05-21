@@ -363,6 +363,8 @@
     let audioContext = null;
     let audioUnlocked = false;
     let soundEnabled = true;
+    let tapFeedbackDirection = null;
+    let tapFeedbackTimeout;
     let speed;
 
     function ensureAudioContext() {
@@ -484,6 +486,8 @@
       isRunning = false;
       isPaused = false;
       isGameOver = false;
+      tapFeedbackDirection = null;
+      clearTimeout(tapFeedbackTimeout);
 
       updateScore();
       placeFood();
@@ -637,6 +641,7 @@
     function drawGame() {
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawGrid();
+      drawTapFeedback();
       drawFood();
       drawSnake();
     }
@@ -661,6 +666,45 @@
         context.lineTo(canvas.width, position);
         context.stroke();
       }
+    }
+
+    function drawTapFeedback() {
+      if (!tapFeedbackDirection) return;
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      context.save();
+      context.fillStyle = "rgba(47, 59, 47, 0.14)";
+      context.beginPath();
+
+      if (tapFeedbackDirection === "up") {
+        context.moveTo(0, 0);
+        context.lineTo(canvas.width, 0);
+        context.lineTo(centerX, centerY);
+      }
+
+      if (tapFeedbackDirection === "down") {
+        context.moveTo(0, canvas.height);
+        context.lineTo(canvas.width, canvas.height);
+        context.lineTo(centerX, centerY);
+      }
+
+      if (tapFeedbackDirection === "left") {
+        context.moveTo(0, 0);
+        context.lineTo(centerX, centerY);
+        context.lineTo(0, canvas.height);
+      }
+
+      if (tapFeedbackDirection === "right") {
+        context.moveTo(canvas.width, 0);
+        context.lineTo(centerX, centerY);
+        context.lineTo(canvas.width, canvas.height);
+      }
+
+      context.closePath();
+      context.fill();
+      context.restore();
     }
 
     function drawSnake() {
@@ -736,9 +780,9 @@
 
     function setDirection(newDirection) {
       const chosen = directions[newDirection];
-      if (!chosen) return;
+      if (!chosen) return false;
 
-      if (restartConfirmationPending) return;
+      if (restartConfirmationPending) return false;
 
       const isOpposite =
         chosen.x + direction.x === 0 &&
@@ -746,11 +790,15 @@
       const isSameAsNext =
         chosen.x === nextDirection.x &&
         chosen.y === nextDirection.y;
+      let directionChanged = false;
 
       if (!isOpposite && !isSameAsNext) {
         nextDirection = chosen;
+        directionChanged = true;
         playSound("turn");
       }
+
+      return directionChanged;
     }
 
     document.addEventListener("keydown", event => {
@@ -865,16 +913,32 @@
         return null;
       }
 
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const deltaX = clientX - centerX;
-      const deltaY = clientY - centerY;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const canvasX = (clientX - rect.left) * scaleX;
+      const canvasY = (clientY - rect.top) * scaleY;
+      const head = snake[0];
+      const headCenterX = head.x * gridSize + gridSize / 2;
+      const headCenterY = head.y * gridSize + gridSize / 2;
+      const deltaX = canvasX - headCenterX;
+      const deltaY = canvasY - headCenterY;
 
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
         return deltaX > 0 ? "right" : "left";
       }
 
       return deltaY > 0 ? "down" : "up";
+    }
+
+    function showTapFeedback(newDirection) {
+      tapFeedbackDirection = newDirection;
+      clearTimeout(tapFeedbackTimeout);
+      drawGame();
+
+      tapFeedbackTimeout = setTimeout(() => {
+        tapFeedbackDirection = null;
+        drawGame();
+      }, 130);
     }
 
     function applyTapDirection(newDirection) {
@@ -884,7 +948,9 @@
         restartGame();
       }
 
-      setDirection(newDirection);
+      if (setDirection(newDirection)) {
+        showTapFeedback(newDirection);
+      }
     }
 
     function handleSwipeMovement(clientX, clientY) {
