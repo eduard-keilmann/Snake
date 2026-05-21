@@ -177,14 +177,16 @@
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
       gap: min(8px, 2vw);
-      width: min(260px, 76vw, 34dvh);
-      aspect-ratio: 1;
+      /* Square fallback: width: min(260px, 76vw, 34dvh); aspect-ratio: 1; */
+      width: min(286px, 82vw, 37dvh);
+      aspect-ratio: 1.18 / 1;
       padding: 0;
       place-content: center;
       touch-action: none;
     }
 
     .mobile-pad button {
+      --pad-button-offset-x: 0px;
       display: grid;
       place-items: center;
       min-width: 0;
@@ -197,6 +199,7 @@
       touch-action: none;
       -webkit-user-select: none;
       user-select: none;
+      transform: translateX(var(--pad-button-offset-x));
       transition: transform 110ms ease-out, filter 110ms ease-out, box-shadow 110ms ease-out;
     }
 
@@ -206,11 +209,13 @@
     }
 
     .left {
+      --pad-button-offset-x: -4px;
       grid-column: 1;
       grid-row: 2;
     }
 
     .right {
+      --pad-button-offset-x: 4px;
       grid-column: 3;
       grid-row: 2;
     }
@@ -221,7 +226,7 @@
     }
 
     .mobile-pad button:active {
-      transform: scale(0.90);
+      transform: translateX(var(--pad-button-offset-x)) scale(0.90);
       filter: brightness(0.92);
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.5),
