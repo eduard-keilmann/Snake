@@ -88,6 +88,25 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertNotIn('canvas.addEventListener("touchmove"', self.html)
         self.assertNotIn('canvas.addEventListener("touchend"', self.html)
 
+    def test_lcd_tap_zones_turn_snake_without_breaking_swipe(self):
+        self.assertIn("let touchStartX = null;", self.html)
+        self.assertIn("let touchStartY = null;", self.html)
+        self.assertIn("let touchStartedOnCanvas = false;", self.html)
+        self.assertIn("let swipeDirectionApplied = false;", self.html)
+        self.assertIn("function getTapDirection(clientX, clientY)", self.html)
+        self.assertIn("const rect = canvas.getBoundingClientRect();", self.html)
+        self.assertIn("const deltaX = clientX - centerX;", self.html)
+        self.assertIn("const deltaY = clientY - centerY;", self.html)
+        self.assertIn("Math.abs(deltaX) > Math.abs(deltaY)", self.html)
+        self.assertIn("function applyTapDirection(newDirection)", self.html)
+        self.assertIn("if (!isRunning) {\n        restartGame();\n      }\n\n      setDirection(newDirection);", self.html)
+        self.assertIn("function handleTapZone(clientX, clientY)", self.html)
+        self.assertIn("if (!touchStartedOnCanvas || swipeDirectionApplied)", self.html)
+        self.assertIn("const movedTooFar =", self.html)
+        self.assertIn("applyTapDirection(getTapDirection(clientX, clientY));", self.html)
+        self.assertIn('const isButtonTouch = event.target.closest("button") !== null;', self.html)
+        self.assertNotIn('document.addEventListener("pointerdown", event => {', self.html)
+
     def test_restart_button_requires_second_click(self):
         self.assertIn("let restartConfirmationPending = false;", self.html)
         self.assertIn("let restartConfirmationWasRunning = false;", self.html)

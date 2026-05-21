@@ -840,8 +840,46 @@
     const swipeThreshold = 24;
     let touchLastX = null;
     let touchLastY = null;
+    let touchStartX = null;
+    let touchStartY = null;
+    let touchStartedOnCanvas = false;
+    let swipeDirectionApplied = false;
 
     function applySwipeDirection(newDirection) {
+      if (!isRunning) {
+        restartGame();
+      }
+
+      setDirection(newDirection);
+    }
+
+    function getTapDirection(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+
+      if (
+        clientX < rect.left ||
+        clientX > rect.right ||
+        clientY < rect.top ||
+        clientY > rect.bottom
+      ) {
+        return null;
+      }
+
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const deltaX = clientX - centerX;
+      const deltaY = clientY - centerY;
+
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        return deltaX > 0 ? "right" : "left";
+      }
+
+      return deltaY > 0 ? "down" : "up";
+    }
+
+    function applyTapDirection(newDirection) {
+      if (!newDirection) return;
+
       if (!isRunning) {
         restartGame();
       }
@@ -853,14 +891,14 @@
       if (touchLastX === null || touchLastY === null) {
         touchLastX = clientX;
         touchLastY = clientY;
-        return;
+        return false;
       }
 
       const deltaX = clientX - touchLastX;
       const deltaY = clientY - touchLastY;
 
       if (Math.abs(deltaX) < swipeThreshold && Math.abs(deltaY) < swipeThreshold) {
-        return;
+        return false;
       }
 
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -869,19 +907,46 @@
         applySwipeDirection(deltaY > 0 ? "down" : "up");
       }
 
+      swipeDirectionApplied = true;
       touchLastX = clientX;
       touchLastY = clientY;
+      return true;
+    }
+
+    function handleTapZone(clientX, clientY) {
+      if (!touchStartedOnCanvas || swipeDirectionApplied) {
+        return;
+      }
+
+      const movedTooFar =
+        Math.abs(clientX - touchStartX) >= swipeThreshold ||
+        Math.abs(clientY - touchStartY) >= swipeThreshold;
+
+      if (movedTooFar) {
+        return;
+      }
+
+      applyTapDirection(getTapDirection(clientX, clientY));
     }
 
     function clearSwipeTracking() {
       touchLastX = null;
       touchLastY = null;
+      touchStartX = null;
+      touchStartY = null;
+      touchStartedOnCanvas = false;
+      swipeDirectionApplied = false;
     }
 
     document.addEventListener("touchstart", event => {
       const touch = event.changedTouches[0];
+      const isButtonTouch = event.target.closest("button") !== null;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
       touchLastX = touch.clientX;
       touchLastY = touch.clientY;
+      touchStartedOnCanvas = !isButtonTouch && getTapDirection(touch.clientX, touch.clientY) !== null;
+      swipeDirectionApplied = false;
     }, { passive: true });
 
     document.addEventListener("touchstart", unlockAudio, { capture: true, passive: true });
@@ -894,6 +959,7 @@
     document.addEventListener("touchend", event => {
       const touch = event.changedTouches[0];
       handleSwipeMovement(touch.clientX, touch.clientY);
+      handleTapZone(touch.clientX, touch.clientY);
       clearSwipeTracking();
     }, { passive: true });
 
