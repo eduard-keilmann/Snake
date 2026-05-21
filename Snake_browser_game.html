@@ -835,15 +835,14 @@
       const isSameAsNext =
         chosen.x === nextDirection.x &&
         chosen.y === nextDirection.y;
-      let directionChanged = false;
 
-      if (!isOpposite && !isSameAsNext) {
-        nextDirection = chosen;
-        directionChanged = true;
-        playSound("turn");
+      if (isOpposite || isSameAsNext) {
+        return false;
       }
 
-      return directionChanged;
+      nextDirection = chosen;
+      playSound("turn");
+      return true;
     }
 
     document.addEventListener("keydown", event => {

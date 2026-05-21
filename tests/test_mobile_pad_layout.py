@@ -136,6 +136,30 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("tapFeedbackDirection = null;", self.html)
         self.assertIn("drawGame();", self.html)
 
+    def test_reverse_tap_direction_is_ignored_without_feedback(self):
+        self.assertIn("const isOpposite =", self.html)
+        self.assertIn("const isSameAsNext =", self.html)
+        self.assertIn(
+            """if (isOpposite || isSameAsNext) {
+        return false;
+      }""",
+            self.html,
+        )
+        self.assertIn(
+            """function applyTapDirection(newDirection) {
+      if (!newDirection) return;
+
+      if (!isRunning) {
+        restartGame();
+      }
+
+      if (setDirection(newDirection)) {
+        showTapFeedback(newDirection);
+      }
+    }""",
+            self.html,
+        )
+
     def test_restart_button_requires_second_click(self):
         self.assertIn("let restartConfirmationPending = false;", self.html)
         self.assertIn("let restartConfirmationWasRunning = false;", self.html)
