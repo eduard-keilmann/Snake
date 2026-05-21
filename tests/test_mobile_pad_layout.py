@@ -115,7 +115,7 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertNotIn("const centerX = rect.left + rect.width / 2;", self.html)
         self.assertNotIn("const centerY = rect.top + rect.height / 2;", self.html)
         self.assertIn("function applyTapDirection(newDirection)", self.html)
-        self.assertIn("if (setDirection(newDirection)) {\n        showTapFeedback(newDirection);\n      }", self.html)
+        self.assertIn("setDirection(newDirection);", self.html)
         self.assertIn("function handleTapZone(clientX, clientY)", self.html)
         self.assertIn("if (!touchStartedOnCanvas || swipeDirectionApplied)", self.html)
         self.assertIn("const movedTooFar =", self.html)
@@ -123,18 +123,12 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn('const isButtonTouch = event.target.closest("button") !== null;', self.html)
         self.assertNotIn('document.addEventListener("pointerdown", event => {', self.html)
 
-    def test_lcd_tap_zones_show_brief_direction_feedback(self):
-        self.assertIn("let tapFeedbackDirection = null;", self.html)
-        self.assertIn("let tapFeedbackTimeout;", self.html)
-        self.assertIn("function drawTapFeedback()", self.html)
-        self.assertIn("if (!tapFeedbackDirection) return;", self.html)
-        self.assertIn("drawTapFeedback();", self.html)
-        self.assertIn("function showTapFeedback(newDirection)", self.html)
-        self.assertIn("tapFeedbackDirection = newDirection;", self.html)
-        self.assertIn("clearTimeout(tapFeedbackTimeout);", self.html)
-        self.assertIn("tapFeedbackTimeout = setTimeout(() => {", self.html)
-        self.assertIn("tapFeedbackDirection = null;", self.html)
-        self.assertIn("drawGame();", self.html)
+    def test_lcd_tap_zones_do_not_show_triangle_feedback(self):
+        self.assertNotIn("let tapFeedbackDirection", self.html)
+        self.assertNotIn("let tapFeedbackTimeout", self.html)
+        self.assertNotIn("function drawTapFeedback()", self.html)
+        self.assertNotIn("function showTapFeedback", self.html)
+        self.assertNotIn("drawTapFeedback();", self.html)
 
     def test_reverse_tap_direction_is_ignored_without_feedback(self):
         self.assertIn("const isOpposite =", self.html)
@@ -153,9 +147,7 @@ class MobilePadLayoutTest(unittest.TestCase):
         restartGame();
       }
 
-      if (setDirection(newDirection)) {
-        showTapFeedback(newDirection);
-      }
+      setDirection(newDirection);
     }""",
             self.html,
         )

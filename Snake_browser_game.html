@@ -381,8 +381,6 @@
     let audioContext = null;
     let audioUnlocked = false;
     let soundEnabled = true;
-    let tapFeedbackDirection = null;
-    let tapFeedbackTimeout;
     let speed;
 
     function ensureAudioContext() {
@@ -529,8 +527,6 @@
       isRunning = false;
       isPaused = false;
       isGameOver = false;
-      tapFeedbackDirection = null;
-      clearTimeout(tapFeedbackTimeout);
 
       updateScore();
       placeFood();
@@ -684,7 +680,6 @@
     function drawGame() {
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawGrid();
-      drawTapFeedback();
       drawFood();
       drawSnake();
     }
@@ -709,45 +704,6 @@
         context.lineTo(canvas.width, position);
         context.stroke();
       }
-    }
-
-    function drawTapFeedback() {
-      if (!tapFeedbackDirection) return;
-
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-
-      context.save();
-      context.fillStyle = "rgba(47, 59, 47, 0.14)";
-      context.beginPath();
-
-      if (tapFeedbackDirection === "up") {
-        context.moveTo(0, 0);
-        context.lineTo(canvas.width, 0);
-        context.lineTo(centerX, centerY);
-      }
-
-      if (tapFeedbackDirection === "down") {
-        context.moveTo(0, canvas.height);
-        context.lineTo(canvas.width, canvas.height);
-        context.lineTo(centerX, centerY);
-      }
-
-      if (tapFeedbackDirection === "left") {
-        context.moveTo(0, 0);
-        context.lineTo(centerX, centerY);
-        context.lineTo(0, canvas.height);
-      }
-
-      if (tapFeedbackDirection === "right") {
-        context.moveTo(canvas.width, 0);
-        context.lineTo(centerX, centerY);
-        context.lineTo(canvas.width, canvas.height);
-      }
-
-      context.closePath();
-      context.fill();
-      context.restore();
     }
 
     function drawSnake() {
@@ -978,17 +934,6 @@
       return deltaY > 0 ? "down" : "up";
     }
 
-    function showTapFeedback(newDirection) {
-      tapFeedbackDirection = newDirection;
-      clearTimeout(tapFeedbackTimeout);
-      drawGame();
-
-      tapFeedbackTimeout = setTimeout(() => {
-        tapFeedbackDirection = null;
-        drawGame();
-      }, 130);
-    }
-
     function applyTapDirection(newDirection) {
       if (!newDirection) return;
 
@@ -996,9 +941,7 @@
         restartGame();
       }
 
-      if (setDirection(newDirection)) {
-        showTapFeedback(newDirection);
-      }
+      setDirection(newDirection);
     }
 
     function handleSwipeMovement(clientX, clientY) {
