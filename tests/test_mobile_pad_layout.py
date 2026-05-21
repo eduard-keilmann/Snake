@@ -43,6 +43,22 @@ class MobilePadLayoutTest(unittest.TestCase):
             self.html,
         )
 
+    def test_sound_toggle_is_visible_and_documented(self):
+        readme = Path("README.md").read_text(encoding="utf-8")
+
+        self.assertIn('<button id="soundButton" aria-pressed="false">SOUND OFF</button>', self.html)
+        self.assertIn("Sound: optional retro-style effects for turns, food, pause/start, and game over", readme)
+
+    def test_sound_is_browser_generated_and_user_toggle_controlled(self):
+        self.assertIn("const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;", self.html)
+        self.assertIn("let soundEnabled = false;", self.html)
+        self.assertIn("function toggleSound()", self.html)
+        self.assertIn('soundButton.addEventListener("pointerdown", () => {', self.html)
+        self.assertIn('soundButton.textContent = soundEnabled ? "SOUND ON" : "SOUND OFF";', self.html)
+        self.assertNotIn("<audio", self.html)
+        self.assertNotIn(".mp3", self.html)
+        self.assertNotIn(".wav", self.html)
+
     def test_action_buttons_are_below_d_pad_on_mobile(self):
         self.assertIn("@media (max-width: 759px)", self.html)
         self.assertNotIn("order: -1;", self.html)

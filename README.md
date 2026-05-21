@@ -26,6 +26,7 @@ No build step, server, or dependency install is required.
 - Space: start, pause, or resume
 - Enter: start when the game is not running
 - Restart: click once to pause and show confirmation, then confirm to restart or cancel to resume
+- Sound: optional retro-style effects for turns, food, pause/start, and game over
 
 ## Gameplay
 
