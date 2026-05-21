@@ -913,15 +913,10 @@
         return null;
       }
 
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      const canvasX = (clientX - rect.left) * scaleX;
-      const canvasY = (clientY - rect.top) * scaleY;
-      const head = snake[0];
-      const headCenterX = head.x * gridSize + gridSize / 2;
-      const headCenterY = head.y * gridSize + gridSize / 2;
-      const deltaX = canvasX - headCenterX;
-      const deltaY = canvasY - headCenterY;
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const deltaX = clientX - centerX;
+      const deltaY = clientY - centerY;
 
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
         return deltaX > 0 ? "right" : "left";
