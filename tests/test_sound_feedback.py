@@ -37,6 +37,23 @@ class SoundFeedbackTest(unittest.TestCase):
         )
         self.assertIn('playSound("pause");', self.html)
 
+    def test_sound_unlock_waits_for_browser_audio_resume(self):
+        self.assertIn("function resumeAudioContext()", self.html)
+        self.assertIn("return audioContext.resume().then(() => audioContext);", self.html)
+        self.assertIn(
+            """if (soundEnabled) {
+        resumeAudioContext().then(() => {
+          playSound("start");
+        });
+      }""",
+            self.html,
+        )
+
+    def test_retro_tones_are_loud_enough_for_phone_speakers(self):
+        self.assertIn("function playTone(frequency, startDelay = 0, duration = 0.06, volume = 0.09)", self.html)
+        self.assertIn("turn: [{ frequency: 880, delay: 0, duration: 0.035, volume: 0.08 }]", self.html)
+        self.assertIn("pause: [{ frequency: 392, delay: 0, duration: 0.08, volume: 0.09 }]", self.html)
+
     def test_turn_sound_only_plays_after_accepted_direction_change(self):
         self.assertIn("const isSameAsNext =", self.html)
         self.assertIn(
