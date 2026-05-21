@@ -63,17 +63,20 @@ class SoundFeedbackTest(unittest.TestCase):
         self.assertIn("pause: [{ frequency: 392, delay: 0, duration: 0.08, volume: 0.09 }]", self.html)
 
     def test_turn_sound_only_plays_after_accepted_direction_change(self):
+        self.assertIn("const isOpposite =", self.html)
         self.assertIn("const isSameAsNext =", self.html)
-        self.assertIn("let directionChanged = false;", self.html)
         self.assertIn(
-            """if (!isOpposite && !isSameAsNext) {
-        nextDirection = chosen;
-        directionChanged = true;
-        playSound("turn");
+            """if (isOpposite || isSameAsNext) {
+        return false;
       }""",
             self.html,
         )
-        self.assertIn("return directionChanged;", self.html)
+        self.assertIn(
+            """nextDirection = chosen;
+      playSound("turn");
+      return true;""",
+            self.html,
+        )
 
 
 if __name__ == "__main__":
