@@ -958,10 +958,19 @@
         return null;
       }
 
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const deltaX = clientX - centerX;
-      const deltaY = clientY - centerY;
+      const head = snake[0];
+      if (!head) return null;
+
+      const canvasX = ((clientX - rect.left) / rect.width) * canvas.width;
+      const canvasY = ((clientY - rect.top) / rect.height) * canvas.height;
+      const headCenterX = head.x * gridSize + gridSize / 2;
+      const headCenterY = head.y * gridSize + gridSize / 2;
+      const deltaX = canvasX - headCenterX;
+      const deltaY = canvasY - headCenterY;
+
+      if (deltaX === 0 && deltaY === 0) {
+        return null;
+      }
 
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
         return deltaX > 0 ? "right" : "left";
