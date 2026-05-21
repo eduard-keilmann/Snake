@@ -52,6 +52,10 @@ class MobilePadLayoutTest(unittest.TestCase):
         readme = Path("README.md").read_text(encoding="utf-8")
 
         self.assertIn('<button id="soundButton" aria-pressed="true">SOUND ON</button>', self.html)
+        self.assertIn("#soundButton {", self.html)
+        self.assertIn("min-width: 70px;", self.html)
+        self.assertIn("padding: 5px 7px;", self.html)
+        self.assertIn("font-size: 0.68rem;", self.html)
         self.assertIn("Sound: optional retro-style effects for turns, food, pause/start, and game over", readme)
 
     def test_sound_is_browser_generated_and_user_toggle_controlled(self):
