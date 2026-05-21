@@ -194,6 +194,7 @@
 
     .mobile-pad button {
       --pad-button-offset-x: 0px;
+      --pad-button-scale-x: 1;
       display: grid;
       place-items: center;
       min-width: 0;
@@ -206,7 +207,8 @@
       touch-action: none;
       -webkit-user-select: none;
       user-select: none;
-      transform: translateX(var(--pad-button-offset-x));
+      transform: translateX(var(--pad-button-offset-x)) scaleX(var(--pad-button-scale-x));
+      transform-origin: center;
       transition: transform 110ms ease-out, filter 110ms ease-out, box-shadow 110ms ease-out;
     }
 
@@ -236,11 +238,11 @@
 
     .mobile-pad .up,
     .mobile-pad .down {
-      width: calc(100% + 34px);
+      --pad-button-scale-x: 1.45;
     }
 
     .mobile-pad button:active {
-      transform: translateX(var(--pad-button-offset-x)) scale(0.90);
+      transform: translateX(var(--pad-button-offset-x)) scaleX(var(--pad-button-scale-x)) scale(0.90);
       filter: brightness(0.92);
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.5),

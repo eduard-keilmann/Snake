@@ -17,7 +17,12 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("width: 100%;", self.html)
         self.assertIn("height: 100%;", self.html)
         self.assertIn("--pad-button-offset-x: 0px;", self.html)
-        self.assertIn("transform: translateX(var(--pad-button-offset-x));", self.html)
+        self.assertIn("--pad-button-scale-x: 1;", self.html)
+        self.assertIn(
+            "transform: translateX(var(--pad-button-offset-x)) scaleX(var(--pad-button-scale-x));",
+            self.html,
+        )
+        self.assertIn("transform-origin: center;", self.html)
         self.assertIn("--pad-button-offset-x: -4px;", self.html)
         self.assertIn("--pad-button-offset-x: 4px;", self.html)
         self.assertIn("touch-action: none;", self.html)
@@ -25,14 +30,17 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("grid-column: 2;", self.html)
         self.assertIn("grid-row: 1;", self.html)
         self.assertIn(".mobile-pad .up,\n    .mobile-pad .down", self.html)
-        self.assertIn("width: calc(100% + 34px);", self.html)
+        self.assertIn("--pad-button-scale-x: 1.45;", self.html)
         self.assertIn("justify-self: center;", self.html)
         self.assertIn("grid-column: 1;", self.html)
         self.assertIn("grid-row: 2;", self.html)
         self.assertIn("grid-column: 3;", self.html)
         self.assertIn("grid-row: 3;", self.html)
         self.assertIn(".mobile-pad button:active", self.html)
-        self.assertIn("transform: translateX(var(--pad-button-offset-x)) scale(0.90);", self.html)
+        self.assertIn(
+            "transform: translateX(var(--pad-button-offset-x)) scaleX(var(--pad-button-scale-x)) scale(0.90);",
+            self.html,
+        )
         self.assertIn("--button-active-glow: rgba(190, 255, 118, 0.85);", self.html)
         self.assertIn("box-shadow 110ms ease-out", self.html)
         self.assertIn("inset 0 0 0 3px var(--button-active-glow)", self.html)
