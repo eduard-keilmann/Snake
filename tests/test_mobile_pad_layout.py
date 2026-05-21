@@ -13,7 +13,7 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("gap: min(8px, 2vw);", self.html)
         self.assertIn("Square fallback: width: min(260px, 76vw, 34dvh); aspect-ratio: 1;", self.html)
         self.assertIn("width: min(286px, 82vw, 37dvh);", self.html)
-        self.assertIn("aspect-ratio: 1.18 / 1;", self.html)
+        self.assertIn("aspect-ratio: 1.24 / 1;", self.html)
         self.assertIn("width: 100%;", self.html)
         self.assertIn("height: 100%;", self.html)
         self.assertIn("--pad-button-offset-x: 0px;", self.html)
