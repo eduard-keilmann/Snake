@@ -24,6 +24,7 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("-webkit-user-select: none;", self.html)
         self.assertIn("grid-column: 2;", self.html)
         self.assertIn("grid-row: 1;", self.html)
+        self.assertIn(".mobile-pad .up,\n    .mobile-pad .down", self.html)
         self.assertIn("width: calc(100% + 34px);", self.html)
         self.assertIn("justify-self: center;", self.html)
         self.assertIn("grid-column: 1;", self.html)
