@@ -31,6 +31,8 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("grid-row: 1;", self.html)
         self.assertIn(".mobile-pad .up,\n    .mobile-pad .down", self.html)
         self.assertIn("--pad-button-scale-x: 1.45;", self.html)
+        self.assertIn(".mobile-pad .left,\n    .mobile-pad .right", self.html)
+        self.assertIn("--pad-button-scale-x: 1.12;", self.html)
         self.assertIn("justify-self: center;", self.html)
         self.assertIn("grid-column: 1;", self.html)
         self.assertIn("grid-row: 2;", self.html)
