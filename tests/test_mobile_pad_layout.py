@@ -64,11 +64,13 @@ class MobilePadLayoutTest(unittest.TestCase):
     def test_sound_toggle_is_visible_and_documented(self):
         readme = Path("README.md").read_text(encoding="utf-8")
 
-        self.assertIn('<button id="soundButton" aria-pressed="true">SOUND ON</button>', self.html)
+        self.assertIn('<button id="soundButton" aria-pressed="true">SOUND</button>', self.html)
         self.assertIn("#soundButton {", self.html)
         self.assertIn("min-width: 70px;", self.html)
         self.assertIn("padding: 5px 7px;", self.html)
         self.assertIn("font-size: 0.68rem;", self.html)
+        self.assertIn('color: #1f4f1f;', self.html)
+        self.assertIn('#soundButton[aria-pressed="false"] {', self.html)
         self.assertIn("Sound: optional retro-style effects for turns, food, pause/start, and game over", readme)
 
     def test_sound_is_browser_generated_and_user_toggle_controlled(self):
@@ -76,7 +78,8 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("let soundEnabled = true;", self.html)
         self.assertIn("function toggleSound()", self.html)
         self.assertIn('soundButton.addEventListener("pointerdown", () => {', self.html)
-        self.assertIn('soundButton.textContent = soundEnabled ? "SOUND ON" : "SOUND OFF";', self.html)
+        self.assertIn('soundButton.textContent = "SOUND";', self.html)
+        self.assertIn('soundButton.setAttribute("aria-pressed", String(soundEnabled));', self.html)
         self.assertNotIn("<audio", self.html)
         self.assertNotIn(".mp3", self.html)
         self.assertNotIn(".wav", self.html)

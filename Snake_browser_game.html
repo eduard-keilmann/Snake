@@ -177,6 +177,13 @@
       padding: 5px 7px;
       font-size: 0.68rem;
       letter-spacing: 0;
+      color: #1f4f1f;
+      border-color: #6e8d5b;
+    }
+
+    #soundButton[aria-pressed="false"] {
+      color: #5c5c5c;
+      border-color: #8e8e8e;
     }
 
     .mobile-pad {
@@ -302,7 +309,7 @@
     <section class="screen" aria-label="Snake display">
       <div class="screen-top">
         <span>SNAKE</span>
-        <button id="soundButton" aria-pressed="true">SOUND ON</button>
+        <button id="soundButton" aria-pressed="true">SOUND</button>
         <span class="scoreboard">
           <span>SCORE <span id="score">0</span></span>
           <span>HIGH <span id="highScore">0</span></span>
@@ -696,7 +703,7 @@
     let speed;
 
     function updateSoundButton() {
-      soundButton.textContent = soundEnabled ? "SOUND ON" : "SOUND OFF";
+      soundButton.textContent = "SOUND";
       soundButton.setAttribute("aria-pressed", String(soundEnabled));
     }
 
