@@ -449,6 +449,19 @@
       food: "#445244"
     };
 
+    const inputCommands = (() => {
+      function move(direction) {
+        return {
+          type: "move",
+          direction
+        };
+      }
+
+      return {
+        move
+      };
+    })();
+
     const directions = {
       up: { x: 0, y: -1 },
       down: { x: 0, y: 1 },
@@ -879,27 +892,39 @@
       return true;
     }
 
+    function handleInputCommand(command) {
+      if (!command || command.type !== "move" || !command.direction) {
+        return false;
+      }
+
+      if (!isRunning) {
+        restartGame();
+      }
+
+      return setDirection(command.direction);
+    }
+
     document.addEventListener("keydown", event => {
       const key = event.key.toLowerCase();
 
       if (["arrowup", "w"].includes(key)) {
         event.preventDefault();
-        setDirection("up");
+        handleInputCommand(inputCommands.move("up"));
       }
 
       if (["arrowdown", "s"].includes(key)) {
         event.preventDefault();
-        setDirection("down");
+        handleInputCommand(inputCommands.move("down"));
       }
 
       if (["arrowleft", "a"].includes(key)) {
         event.preventDefault();
-        setDirection("left");
+        handleInputCommand(inputCommands.move("left"));
       }
 
       if (["arrowright", "d"].includes(key)) {
         event.preventDefault();
-        setDirection("right");
+        handleInputCommand(inputCommands.move("right"));
       }
 
       if (key === " " || key === "spacebar") {
@@ -919,10 +944,7 @@
     document.querySelectorAll("[data-direction]").forEach(button => {
       button.addEventListener("pointerdown", () => {
         vibrate();
-        if (!isRunning) {
-          restartGame();
-        }
-        setDirection(button.dataset.direction);
+        handleInputCommand(inputCommands.move(button.dataset.direction));
       });
     });
 
@@ -972,11 +994,7 @@
     let swipeDirectionApplied = false;
 
     function applySwipeDirection(newDirection) {
-      if (!isRunning) {
-        restartGame();
-      }
-
-      setDirection(newDirection);
+      return handleInputCommand(inputCommands.move(newDirection));
     }
 
     function getTapDirection(clientX, clientY) {
@@ -1015,11 +1033,7 @@
     function applyTapDirection(newDirection) {
       if (!newDirection) return;
 
-      if (!isRunning) {
-        restartGame();
-      }
-
-      setDirection(newDirection);
+      return handleInputCommand(inputCommands.move(newDirection));
     }
 
     function handleSwipeMovement(clientX, clientY) {

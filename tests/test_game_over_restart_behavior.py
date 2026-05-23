@@ -29,21 +29,14 @@ class GameOverRestartBehaviorTest(unittest.TestCase):
         self.assertIn(
             """button.addEventListener("pointerdown", () => {
         vibrate();
-        if (!isRunning) {
-          restartGame();
-        }
-        setDirection(button.dataset.direction);""",
+        handleInputCommand(inputCommands.move(button.dataset.direction));""",
             self.html,
         )
 
     def test_swipe_direction_starts_clean_state_before_turning(self):
         self.assertIn(
             """function applySwipeDirection(newDirection) {
-      if (!isRunning) {
-        restartGame();
-      }
-
-      setDirection(newDirection);
+      return handleInputCommand(inputCommands.move(newDirection));
     }""",
             self.html,
         )

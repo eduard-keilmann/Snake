@@ -128,7 +128,7 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertNotIn("const centerX = rect.left + rect.width / 2;", self.html)
         self.assertNotIn("const centerY = rect.top + rect.height / 2;", self.html)
         self.assertIn("function applyTapDirection(newDirection)", self.html)
-        self.assertIn("setDirection(newDirection);", self.html)
+        self.assertIn("handleInputCommand(inputCommands.move(newDirection));", self.html)
         self.assertIn("function handleTapZone(clientX, clientY)", self.html)
         self.assertIn("if (!touchStartedOnCanvas || swipeDirectionApplied)", self.html)
         self.assertIn("const movedTooFar =", self.html)
@@ -156,11 +156,7 @@ class MobilePadLayoutTest(unittest.TestCase):
             """function applyTapDirection(newDirection) {
       if (!newDirection) return;
 
-      if (!isRunning) {
-        restartGame();
-      }
-
-      setDirection(newDirection);
+      return handleInputCommand(inputCommands.move(newDirection));
     }""",
             self.html,
         )
