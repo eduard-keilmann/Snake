@@ -4,7 +4,7 @@ import unittest
 
 class ArchitectureContextNoteTest(unittest.TestCase):
     def test_context_note_records_current_snake_architecture_intent(self):
-        note = Path("CONTEXT.md").read_text(encoding="utf-8")
+        note = Path("CONTEXT.local.md").read_text(encoding="utf-8")
         note_lower = note.lower()
 
         self.assertIn("Snake", note)
