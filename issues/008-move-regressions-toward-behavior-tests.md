@@ -4,11 +4,11 @@ Move high-risk regressions away from substring assertions and toward behavior te
 
 ## Acceptance criteria
 
-- [ ] Existing player-visible behavior covered by current tests remains protected.
-- [ ] Tests no longer require exact internal formatting for game-over restart, accepted turns, reverse-turn rejection, or high-score promotion.
-- [ ] Static layout checks remain small and readable.
-- [ ] The test command used in the repo passes with focused output.
-- [ ] Tests fail if real Snake behavior is removed, not only if text is renamed.
+- [x] Existing player-visible behavior covered by current tests remains protected.
+- [x] Tests no longer require exact internal formatting for game-over restart, accepted turns, reverse-turn rejection, or high-score promotion.
+- [x] Static layout checks remain small and readable.
+- [x] The test command used in the repo passes with focused output.
+- [x] Tests fail if real Snake behavior is removed, not only if text is renamed.
 
 ## Blocked by
 

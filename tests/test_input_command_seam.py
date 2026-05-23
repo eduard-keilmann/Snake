@@ -34,12 +34,52 @@ def load_handle_input_command_script() -> str:
     return match.group(0)
 
 
+def load_direction_runtime_script() -> str:
+    html = Path("Snake_browser_game.html").read_text(encoding="utf-8")
+    match = re.search(
+        r"const directions = \{.*?\n    let snake;",
+        html,
+        re.DOTALL,
+    )
+    if not match:
+        msg = "Could not find directions runtime setup in Snake_browser_game.html"
+        raise AssertionError(msg)
+    return match.group(0).removesuffix("\n    let snake;")
+
+
+def load_set_direction_script() -> str:
+    html = Path("Snake_browser_game.html").read_text(encoding="utf-8")
+    match = re.search(
+        r"function setDirection\(newDirection\) \{.*?\n    \}",
+        html,
+        re.DOTALL,
+    )
+    if not match:
+        msg = "Could not find setDirection in Snake_browser_game.html"
+        raise AssertionError(msg)
+    return match.group(0)
+
+
 def run_input_command_script(script: str) -> dict[str, object]:
     completed = subprocess.run(
         [
             "node",
             "-e",
             f"{load_input_command_script()}\n{load_handle_input_command_script()}\n{script}",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return json.loads(completed.stdout)
+
+
+def run_direction_script(script: str) -> dict[str, object]:
+    completed = subprocess.run(
+        [
+            "node",
+            "-e",
+            f"{load_direction_runtime_script()}\n{load_set_direction_script()}\n{script}",
         ],
         check=True,
         capture_output=True,
@@ -129,6 +169,74 @@ class InputCommandSeamTest(unittest.TestCase):
                 "accepted": False,
                 "calls": ["turn:right"],
                 "isRunning": True,
+            },
+        )
+
+    def test_turn_command_accepts_non_reverse_direction_once(self):
+        result = run_direction_script(
+            textwrap.dedent(
+                """
+                let direction = directions.right;
+                let nextDirection = directions.right;
+                let restartConfirmationPending = false;
+                const calls = [];
+                const soundEffects = {
+                  play(name) {
+                    calls.push(name);
+                  }
+                };
+
+                const accepted = setDirection("up");
+
+                console.log(JSON.stringify({
+                  accepted,
+                  nextDirection,
+                  calls
+                }));
+                """
+            )
+        )
+
+        self.assertEqual(
+            result,
+            {
+                "accepted": True,
+                "nextDirection": {"x": 0, "y": -1},
+                "calls": ["turn"],
+            },
+        )
+
+    def test_turn_command_rejects_reverse_direction_without_feedback(self):
+        result = run_direction_script(
+            textwrap.dedent(
+                """
+                let direction = directions.right;
+                let nextDirection = directions.right;
+                let restartConfirmationPending = false;
+                const calls = [];
+                const soundEffects = {
+                  play(name) {
+                    calls.push(name);
+                  }
+                };
+
+                const accepted = setDirection("left");
+
+                console.log(JSON.stringify({
+                  accepted,
+                  nextDirection,
+                  calls
+                }));
+                """
+            )
+        )
+
+        self.assertEqual(
+            result,
+            {
+                "accepted": False,
+                "nextDirection": {"x": 1, "y": 0},
+                "calls": [],
             },
         )
 
