@@ -28,7 +28,7 @@ class GameOverRestartBehaviorTest(unittest.TestCase):
     def test_mobile_direction_buttons_start_clean_state_before_turning(self):
         self.assertIn(
             """button.addEventListener("pointerdown", () => {
-        vibrate();
+        vibration.run();
         handleInputCommand(inputCommands.move(button.dataset.direction));""",
             self.html,
         )

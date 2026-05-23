@@ -16,20 +16,20 @@ class HighScoreStorageTest(unittest.TestCase):
     def test_high_score_is_loaded_and_saved_in_browser_storage(self):
         self.assertIn('const highScoreStorageKey = "snakeBrowserGameHighScore";', self.html)
         self.assertIn('const highScoreElement = document.getElementById("highScore");', self.html)
-        self.assertIn("let highScore = loadHighScore();", self.html)
-        self.assertIn("function loadHighScore()", self.html)
-        self.assertIn("localStorage.getItem(highScoreStorageKey)", self.html)
-        self.assertIn("Number.isFinite(storedHighScore) && storedHighScore > 0", self.html)
-        self.assertIn("function saveHighScore()", self.html)
-        self.assertIn("localStorage.setItem(highScoreStorageKey, String(highScore));", self.html)
-        self.assertIn("} catch {\n        return 0;\n      }", self.html)
+        self.assertIn("const storage = browserEffects.createStorage(window.localStorage);", self.html)
+        self.assertIn("let highScore = storage.loadNumber(highScoreStorageKey);", self.html)
+        self.assertIn("function createStorage(storageBackend) {", self.html)
+        self.assertIn("const storedValue = Number(storageBackend.getItem(key));", self.html)
+        self.assertIn("Number.isFinite(storedValue) && storedValue > 0", self.html)
+        self.assertIn("storageBackend.setItem(key, String(value));", self.html)
+        self.assertIn("return false;", self.html)
 
     def test_score_update_promotes_new_high_score(self):
         self.assertIn("function updateHighScore()", self.html)
         self.assertIn("if (score <= highScore) return;", self.html)
         self.assertIn("highScore = score;", self.html)
         self.assertIn("highScoreElement.textContent = highScore;", self.html)
-        self.assertIn("saveHighScore();", self.html)
+        self.assertIn("storage.saveNumber(highScoreStorageKey, highScore);", self.html)
         self.assertIn(
             """function updateScore() {
       scoreElement.textContent = score;

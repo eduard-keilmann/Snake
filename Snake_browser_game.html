@@ -423,6 +423,187 @@
       };
     })();
 
+    const browserEffects = (() => {
+      function createSoundEffects({ createAudioContext, sounds }) {
+        let audioContext = null;
+        let audioUnlocked = false;
+        let enabled = true;
+
+        function ensureAudioContext() {
+          if (!createAudioContext) return null;
+
+          if (!audioContext) {
+            audioContext = createAudioContext();
+          }
+
+          return audioContext;
+        }
+
+        function resume() {
+          const currentAudioContext = ensureAudioContext();
+          if (!currentAudioContext) return Promise.resolve(null);
+
+          if (currentAudioContext.state === "suspended") {
+            return currentAudioContext.resume().then(() => currentAudioContext);
+          }
+
+          return Promise.resolve(currentAudioContext);
+        }
+
+        function unlock() {
+          if (audioUnlocked || !enabled) return Promise.resolve(null);
+
+          return resume().then(currentAudioContext => {
+            if (!currentAudioContext || audioUnlocked) return currentAudioContext;
+
+            const silentBuffer = currentAudioContext.createBuffer(1, 1, 22050);
+            const silentSource = currentAudioContext.createBufferSource();
+
+            silentSource.buffer = silentBuffer;
+            silentSource.connect(currentAudioContext.destination);
+            silentSource.start(0);
+            audioUnlocked = true;
+            return currentAudioContext;
+          });
+        }
+
+        function playTone(frequency, startDelay = 0, duration = 0.06, volume = 0.09) {
+          if (!enabled) return false;
+
+          const currentAudioContext = ensureAudioContext();
+          if (!currentAudioContext) return false;
+
+          const startAt = currentAudioContext.currentTime + startDelay;
+          const stopAt = startAt + duration;
+          const oscillator = currentAudioContext.createOscillator();
+          const gain = currentAudioContext.createGain();
+
+          oscillator.type = "square";
+          oscillator.frequency.setValueAtTime(frequency, startAt);
+          gain.gain.setValueAtTime(volume, startAt);
+          gain.gain.exponentialRampToValueAtTime(0.0001, stopAt);
+
+          oscillator.connect(gain);
+          gain.connect(currentAudioContext.destination);
+          oscillator.start(startAt);
+          oscillator.stop(stopAt);
+          return true;
+        }
+
+        function play(name) {
+          const notes = sounds[name];
+          if (!notes) return false;
+
+          notes.forEach(note => {
+            playTone(note.frequency, note.delay, note.duration, note.volume);
+          });
+
+          return true;
+        }
+
+        function setEnabled(nextEnabled) {
+          enabled = nextEnabled;
+          return enabled;
+        }
+
+        function isEnabled() {
+          return enabled;
+        }
+
+        return {
+          isEnabled,
+          play,
+          resume,
+          setEnabled,
+          unlock
+        };
+      }
+
+      function createStorage(storageBackend) {
+        function loadNumber(key) {
+          try {
+            const storedValue = Number(storageBackend.getItem(key));
+            return Number.isFinite(storedValue) && storedValue > 0 ? storedValue : 0;
+          } catch {
+            return 0;
+          }
+        }
+
+        function saveNumber(key, value) {
+          try {
+            storageBackend.setItem(key, String(value));
+            return true;
+          } catch {
+            return false;
+          }
+        }
+
+        return {
+          loadNumber,
+          saveNumber
+        };
+      }
+
+      function createVibration({ vibrate }) {
+        function run(pattern = 12) {
+          if (!vibrate) return false;
+
+          vibrate(pattern);
+          return true;
+        }
+
+        return {
+          run
+        };
+      }
+
+      function createOverlay({ overlay, overlayTitle, overlayText, startButton }) {
+        function hide() {
+          overlay.classList.add("hidden");
+        }
+
+        function show(title, text, buttonText) {
+          overlayTitle.textContent = title;
+          overlayText.textContent = text;
+          startButton.textContent = buttonText;
+          overlay.classList.remove("hidden");
+        }
+
+        return {
+          hide,
+          show
+        };
+      }
+
+      function createTimer(callback) {
+        let intervalId;
+
+        function clear() {
+          clearInterval(intervalId);
+          intervalId = undefined;
+        }
+
+        function start(delay) {
+          clear();
+          intervalId = setInterval(callback, delay);
+          return intervalId;
+        }
+
+        return {
+          clear,
+          start
+        };
+      }
+
+      return {
+        createOverlay,
+        createSoundEffects,
+        createStorage,
+        createTimer,
+        createVibration
+      };
+    })();
+
     const canvas = document.getElementById("game");
     const context = canvas.getContext("2d");
 
@@ -441,6 +622,36 @@
     const tileCount = canvas.width / gridSize;
     const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
     const highScoreStorageKey = "snakeBrowserGameHighScore";
+    const storage = browserEffects.createStorage(window.localStorage);
+    const soundEffects = browserEffects.createSoundEffects({
+      createAudioContext: AudioContextConstructor ? () => new AudioContextConstructor() : null,
+      sounds: {
+        turn: [{ frequency: 880, delay: 0, duration: 0.035, volume: 0.08 }],
+        food: [
+          { frequency: 784, delay: 0, duration: 0.065, volume: 0.09 },
+          { frequency: 1175, delay: 0.07, duration: 0.085, volume: 0.09 }
+        ],
+        start: [
+          { frequency: 523, delay: 0, duration: 0.06, volume: 0.085 },
+          { frequency: 659, delay: 0.065, duration: 0.07, volume: 0.085 }
+        ],
+        pause: [{ frequency: 392, delay: 0, duration: 0.08, volume: 0.09 }],
+        gameOver: [
+          { frequency: 440, delay: 0, duration: 0.1, volume: 0.09 },
+          { frequency: 330, delay: 0.105, duration: 0.12, volume: 0.09 },
+          { frequency: 220, delay: 0.23, duration: 0.17, volume: 0.09 }
+        ]
+      }
+    });
+    const vibration = browserEffects.createVibration({
+      vibrate: navigator.vibrate ? pattern => navigator.vibrate(pattern) : null
+    });
+    const overlayEffects = browserEffects.createOverlay({
+      overlay,
+      overlayTitle,
+      overlayText,
+      startButton
+    });
 
     const colors = {
       bg: "#9ead86",
@@ -474,106 +685,15 @@
     let direction;
     let nextDirection;
     let score;
-    let highScore = loadHighScore();
-    let gameInterval;
+    let highScore = storage.loadNumber(highScoreStorageKey);
+    const gameTimer = browserEffects.createTimer(gameLoop);
     let isRunning;
     let isPaused;
     let isGameOver;
     let restartConfirmationPending = false;
     let restartConfirmationWasRunning = false;
-    let audioContext = null;
-    let audioUnlocked = false;
     let soundEnabled = true;
     let speed;
-
-    function ensureAudioContext() {
-      if (!AudioContextConstructor) return null;
-
-      if (!audioContext) {
-        audioContext = new AudioContextConstructor();
-      }
-
-      return audioContext;
-    }
-
-    function resumeAudioContext() {
-      const currentAudioContext = ensureAudioContext();
-      if (!currentAudioContext) return Promise.resolve(null);
-
-      if (audioContext.state === "suspended") {
-        return audioContext.resume().then(() => audioContext);
-      }
-
-      return Promise.resolve(audioContext);
-    }
-
-    function unlockAudio() {
-      if (audioUnlocked || !soundEnabled) return;
-
-      resumeAudioContext().then(currentAudioContext => {
-        if (!currentAudioContext || audioUnlocked) return;
-
-        const silentBuffer = audioContext.createBuffer(1, 1, 22050);
-        const silentSource = audioContext.createBufferSource();
-
-        silentSource.buffer = silentBuffer;
-        silentSource.connect(audioContext.destination);
-        silentSource.start(0);
-        audioUnlocked = true;
-      });
-    }
-
-    function playTone(frequency, startDelay = 0, duration = 0.06, volume = 0.09) {
-      if (!soundEnabled) return;
-
-      const currentAudioContext = ensureAudioContext();
-      if (!currentAudioContext) return;
-
-      const startAt = currentAudioContext.currentTime + startDelay;
-      const stopAt = startAt + duration;
-      const oscillator = currentAudioContext.createOscillator();
-      const gain = currentAudioContext.createGain();
-
-      oscillator.type = "square";
-      oscillator.frequency.setValueAtTime(frequency, startAt);
-      gain.gain.setValueAtTime(volume, startAt);
-      gain.gain.exponentialRampToValueAtTime(0.0001, stopAt);
-
-      oscillator.connect(gain);
-      gain.connect(currentAudioContext.destination);
-      oscillator.start(startAt);
-      oscillator.stop(stopAt);
-    }
-
-    function playSequence(notes) {
-      notes.forEach(note => {
-        playTone(note.frequency, note.delay, note.duration, note.volume);
-      });
-    }
-
-    function playSound(soundName) {
-      const sounds = {
-        turn: [{ frequency: 880, delay: 0, duration: 0.035, volume: 0.08 }],
-        food: [
-          { frequency: 784, delay: 0, duration: 0.065, volume: 0.09 },
-          { frequency: 1175, delay: 0.07, duration: 0.085, volume: 0.09 }
-        ],
-        start: [
-          { frequency: 523, delay: 0, duration: 0.06, volume: 0.085 },
-          { frequency: 659, delay: 0.065, duration: 0.07, volume: 0.085 }
-        ],
-        pause: [{ frequency: 392, delay: 0, duration: 0.08, volume: 0.09 }],
-        gameOver: [
-          { frequency: 440, delay: 0, duration: 0.1, volume: 0.09 },
-          { frequency: 330, delay: 0.105, duration: 0.12, volume: 0.09 },
-          { frequency: 220, delay: 0.23, duration: 0.17, volume: 0.09 }
-        ]
-      };
-
-      if (!sounds[soundName]) return;
-
-      playSequence(sounds[soundName]);
-    }
 
     function updateSoundButton() {
       soundButton.textContent = soundEnabled ? "SOUND ON" : "SOUND OFF";
@@ -582,29 +702,13 @@
 
     function toggleSound() {
       soundEnabled = !soundEnabled;
+      soundEffects.setEnabled(soundEnabled);
       updateSoundButton();
 
       if (soundEnabled) {
-        resumeAudioContext().then(() => {
-          playSound("start");
+        soundEffects.resume().then(() => {
+          soundEffects.play("start");
         });
-      }
-    }
-
-    function loadHighScore() {
-      try {
-        const storedHighScore = Number(localStorage.getItem(highScoreStorageKey));
-        return Number.isFinite(storedHighScore) && storedHighScore > 0 ? storedHighScore : 0;
-      } catch {
-        return 0;
-      }
-    }
-
-    function saveHighScore() {
-      try {
-        localStorage.setItem(highScoreStorageKey, String(highScore));
-      } catch {
-        // Storage can be blocked in private mode; the game should still play.
       }
     }
 
@@ -613,7 +717,7 @@
 
       highScore = score;
       highScoreElement.textContent = highScore;
-      saveHighScore();
+      storage.saveNumber(highScoreStorageKey, highScore);
     }
 
     function resetGame() {
@@ -638,18 +742,18 @@
         resetGame();
       }
 
-      clearInterval(gameInterval);
+      gameTimer.clear();
       isRunning = true;
       isPaused = false;
-      playSound("start");
+      soundEffects.play("start");
       pauseButton.textContent = "PAUSE";
       resetRestartConfirmation();
-      overlay.classList.add("hidden");
-      gameInterval = setInterval(gameLoop, speed);
+      overlayEffects.hide();
+      gameTimer.start(speed);
     }
 
     function restartGame() {
-      clearInterval(gameInterval);
+      gameTimer.clear();
       resetRestartConfirmation();
       resetGame();
       startGame();
@@ -677,10 +781,10 @@
       restartButton.style.order = 1;
       pauseButton.style.order = 2;
       cancelButton.classList.remove("hidden");
-      showOverlay("RESTART?", "Confirm restart or cancel to resume.", "CONFIRM");
+      overlayEffects.show("RESTART?", "Confirm restart or cancel to resume.", "CONFIRM");
 
       if (restartConfirmationWasRunning) {
-        clearInterval(gameInterval);
+        gameTimer.clear();
         isPaused = true;
       }
     }
@@ -688,12 +792,12 @@
     function cancelRestartConfirmation() {
       const shouldResume = restartConfirmationWasRunning;
       resetRestartConfirmation();
-      overlay.classList.add("hidden");
+      overlayEffects.hide();
 
       if (shouldResume) {
         isPaused = false;
         pauseButton.textContent = "PAUSE";
-        gameInterval = setInterval(gameLoop, speed);
+        gameTimer.start(speed);
         return;
       }
 
@@ -713,13 +817,13 @@
       pauseButton.textContent = isPaused ? "RESUME" : "PAUSE";
 
       if (isPaused) {
-        clearInterval(gameInterval);
-        playSound("pause");
-        showOverlay("PAUSED", "Press resume, space, or start.", "RESUME");
+        gameTimer.clear();
+        soundEffects.play("pause");
+        overlayEffects.show("PAUSED", "Press resume, space, or start.", "RESUME");
       } else {
-        overlay.classList.add("hidden");
-        playSound("start");
-        gameInterval = setInterval(gameLoop, speed);
+        overlayEffects.hide();
+        soundEffects.play("start");
+        gameTimer.start(speed);
       }
     }
 
@@ -750,7 +854,7 @@
 
       if (tickResult.ateFood) {
         updateScore();
-        playSound("food");
+        soundEffects.play("food");
         if (speed !== previousSpeed) {
           increaseSpeed();
         }
@@ -760,8 +864,7 @@
     }
 
     function increaseSpeed() {
-      clearInterval(gameInterval);
-      gameInterval = setInterval(gameLoop, speed);
+      gameTimer.start(speed);
     }
 
     function placeFood() {
@@ -848,26 +951,13 @@
     }
 
     function endGame() {
-      clearInterval(gameInterval);
+      gameTimer.clear();
       isRunning = false;
       isPaused = false;
       isGameOver = true;
-      playSound("gameOver");
+      soundEffects.play("gameOver");
       pauseButton.textContent = "PAUSE";
-      showOverlay("GAME OVER", `FINAL SCORE: ${score}`, "PLAY");
-    }
-
-    function showOverlay(title, text, buttonText) {
-      overlayTitle.textContent = title;
-      overlayText.textContent = text;
-      startButton.textContent = buttonText;
-      overlay.classList.remove("hidden");
-    }
-
-    function vibrate(pattern = 12) {
-      if (!navigator.vibrate) return;
-
-      navigator.vibrate(pattern);
+      overlayEffects.show("GAME OVER", `FINAL SCORE: ${score}`, "PLAY");
     }
 
     function setDirection(newDirection) {
@@ -888,7 +978,7 @@
       }
 
       nextDirection = chosen;
-      playSound("turn");
+      soundEffects.play("turn");
       return true;
     }
 
@@ -943,19 +1033,19 @@
 
     document.querySelectorAll("[data-direction]").forEach(button => {
       button.addEventListener("pointerdown", () => {
-        vibrate();
+        vibration.run();
         handleInputCommand(inputCommands.move(button.dataset.direction));
       });
     });
 
     startButton.addEventListener("pointerdown", () => {
       if (restartConfirmationPending) {
-        vibrate([18, 40, 18]);
+        vibration.run([18, 40, 18]);
         restartGame();
         return;
       }
 
-      vibrate();
+      vibration.run();
 
       if (isPaused) {
         pauseGame();
@@ -965,17 +1055,17 @@
     });
 
     cancelButton.addEventListener("pointerdown", () => {
-      vibrate();
+      vibration.run();
       cancelRestartConfirmation();
     });
 
     pauseButton.addEventListener("pointerdown", () => {
-      vibrate();
+      vibration.run();
       pauseGame();
     });
 
     restartButton.addEventListener("pointerdown", () => {
-      vibrate(restartConfirmationPending ? [18, 40, 18] : 12);
+      vibration.run(restartConfirmationPending ? [18, 40, 18] : 12);
       requestRestart();
     });
 
@@ -983,7 +1073,9 @@
       toggleSound();
     });
 
-    document.addEventListener("pointerdown", unlockAudio, { capture: true });
+    document.addEventListener("pointerdown", () => {
+      soundEffects.unlock();
+    }, { capture: true });
 
     const swipeThreshold = 24;
     let touchLastX = null;
@@ -1098,7 +1190,9 @@
       swipeDirectionApplied = false;
     }, { passive: true });
 
-    document.addEventListener("touchstart", unlockAudio, { capture: true, passive: true });
+    document.addEventListener("touchstart", () => {
+      soundEffects.unlock();
+    }, { capture: true, passive: true });
 
     document.addEventListener("touchmove", event => {
       const touch = event.changedTouches[0];
