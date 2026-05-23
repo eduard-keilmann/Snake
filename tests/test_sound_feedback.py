@@ -20,8 +20,7 @@ class SoundFeedbackTest(unittest.TestCase):
             self.html,
         )
         self.assertIn(
-            """if (head.x === food.x && head.y === food.y) {
-        score += 10;
+            """if (tickResult.ateFood) {
         updateScore();
         playSound("food");""",
             self.html,
