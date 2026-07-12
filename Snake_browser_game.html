@@ -721,7 +721,7 @@
     // Replace the placeholder with the workers.dev URL printed by `npx wrangler deploy`.
     const LEADERBOARD_API_URL = location.hostname === "localhost"
       ? "http://localhost:8787"
-      : "https://snake-leaderboard.REPLACE_WITH_YOUR_SUBDOMAIN.workers.dev";
+      : "https://snake-leaderboard.ffy8nxww8y.workers.dev";
     const storage = browserEffects.createStorage(window.localStorage);
     const soundEffects = browserEffects.createSoundEffects({
       createAudioContext: AudioContextConstructor ? () => new AudioContextConstructor() : null,
