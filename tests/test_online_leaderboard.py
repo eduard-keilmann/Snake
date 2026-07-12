@@ -53,6 +53,8 @@ class OnlineLeaderboardTest(unittest.TestCase):
 
         self.assertIsNotNone(submit_handler)
         self.assertIn("await refreshOnlineLeaderboard(false);", submit_handler.group("body"))
+        self.assertNotIn("leaderboardAvailable = false;", submit_handler.group("body"))
+        self.assertNotIn("leaderboardButton.hidden", submit_handler.group("body"))
 
 
 if __name__ == "__main__":

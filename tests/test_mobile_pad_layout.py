@@ -75,7 +75,11 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("Sound: optional retro-style effects for turns, food, pause/start, and game over", readme)
 
     def test_mobile_game_field_has_more_height_without_exceeding_viewport_width(self):
-        self.assertIn("width: min(94vw, 420px, max(220px, calc(100dvh - 396px)));", self.html)
+        self.assertIn("padding: 10px 6px;", self.html)
+        self.assertIn(
+            "width: min(calc(100vw - 12px), 420px, max(220px, calc(100dvh - 396px)));",
+            self.html,
+        )
 
     def test_sound_is_browser_generated_and_user_toggle_controlled(self):
         self.assertIn("const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;", self.html)

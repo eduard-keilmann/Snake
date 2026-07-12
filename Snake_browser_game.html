@@ -351,12 +351,12 @@
     @media (max-width: 759px) {
       body {
         align-items: flex-start;
-        padding: 10px 12px;
+        padding: 10px 6px;
         padding-bottom: max(10px, calc(10px + env(safe-area-inset-bottom)));
       }
 
       .game-wrapper {
-        width: min(94vw, 420px, max(220px, calc(100dvh - 396px)));
+        width: min(calc(100vw - 12px), 420px, max(220px, calc(100dvh - 396px)));
         gap: 8px;
       }
 
@@ -1285,8 +1285,6 @@
 
         await refreshOnlineLeaderboard(false);
       } catch (_) {
-        leaderboardAvailable = false;
-        leaderboardButton.hidden = !leaderboardAvailable;
         leaderboardDialog.close();
       }
     });
