@@ -848,16 +848,18 @@
       }
     }
 
-    async function refreshOnlineLeaderboard() {
+    async function refreshOnlineLeaderboard(hideButtonOnFailure = true) {
       try {
         const result = await leaderboardRequest("GET");
         onlineEntries = result.entries;
         leaderboardAvailable = true;
         renderOnlineLeaderboard();
       } catch (_) {
-        leaderboardAvailable = false;
         currentRunId = null;
-        leaderboardButton.hidden = !leaderboardAvailable;
+        if (hideButtonOnFailure) {
+          leaderboardAvailable = false;
+          leaderboardButton.hidden = true;
+        }
         if (leaderboardDialog.open) leaderboardDialog.close();
       }
     }
@@ -1281,7 +1283,7 @@
           return;
         }
 
-        await refreshOnlineLeaderboard();
+        await refreshOnlineLeaderboard(false);
       } catch (_) {
         leaderboardAvailable = false;
         leaderboardButton.hidden = !leaderboardAvailable;

@@ -45,6 +45,15 @@ class OnlineLeaderboardTest(unittest.TestCase):
             ),
         )
 
+    def test_failed_refresh_after_score_submission_keeps_highscores_button(self):
+        submit_handler = re.search(
+            r'leaderboardScoreForm\.addEventListener\("submit", async event => \{(?P<body>[\s\S]*?)\n    \}\);',
+            HTML,
+        )
+
+        self.assertIsNotNone(submit_handler)
+        self.assertIn("await refreshOnlineLeaderboard(false);", submit_handler.group("body"))
+
 
 if __name__ == "__main__":
     unittest.main()
