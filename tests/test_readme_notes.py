@@ -28,6 +28,12 @@ class ReadmeNotesTest(unittest.TestCase):
         self.assertIn("tests/test_high_score_storage.py", readme)
         self.assertIn("tests/test_sound_feedback.py", readme)
         self.assertIn("tests/test_mobile_pad_layout.py", readme)
+        self.assertIn("## Optional Online Highscores", readme)
+        self.assertIn("Cloudflare Worker + D1", readme)
+        self.assertIn(
+            "npx wrangler@latest d1 migrations apply snake-leaderboard --remote",
+            readme,
+        )
         self.assertNotIn("small mobile D-pad layout regression test", readme)
 
 

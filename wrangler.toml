@@ -1,0 +1,9 @@
+name = "snake-leaderboard"
+main = "src/leaderboard.mjs"
+compatibility_date = "2026-07-12"
+
+[[d1_databases]]
+binding = "LEADERBOARD_DB"
+database_name = "snake-leaderboard"
+# Replace this placeholder with the ID shown by `npx wrangler d1 create snake-leaderboard`.
+database_id = "00000000-0000-0000-0000-000000000000"

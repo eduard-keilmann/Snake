@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
 *.local.md
+.dev.vars
+.wrangler/
 
 .DS_Store

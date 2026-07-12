@@ -47,6 +47,13 @@
       align-items: center;
     }
 
+    .screen-actions {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
     .screen {
       width: 100%;
       background: var(--lcd-bg);
@@ -134,6 +141,68 @@
       gap: 10px;
       justify-content: center;
       margin-top: 12px;
+    }
+
+    .leaderboard-dialog {
+      width: min(92vw, 380px);
+      border: 3px solid var(--frame);
+      background: var(--lcd-bg);
+      color: var(--lcd-dark);
+      font: 0.9rem/1.4 "Courier New", Courier, monospace;
+    }
+
+    .leaderboard-dialog::backdrop {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .leaderboard-dialog h2 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+
+    .leaderboard-dialog ol {
+      max-height: 45svh;
+      margin: 0;
+      padding-left: 2.4em;
+      overflow: auto;
+    }
+
+    .leaderboard-dialog li {
+      padding: 3px 0;
+    }
+
+    .leaderboard-entry-score {
+      float: right;
+    }
+
+    .leaderboard-entry-details {
+      display: block;
+      color: var(--lcd-mid);
+      font-size: 0.78rem;
+    }
+
+    .leaderboard-dialog form {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .leaderboard-dialog input {
+      min-width: 0;
+      padding: 8px;
+      border: 2px solid var(--frame);
+      background: #e6eadb;
+      color: var(--lcd-dark);
+      font: inherit;
+    }
+
+    .leaderboard-dialog menu {
+      display: flex;
+      justify-content: end;
+      gap: 8px;
+      margin: 16px 0 0;
+      padding: 0;
     }
 
     .controls {
@@ -285,7 +354,7 @@
       }
 
       .game-wrapper {
-        width: min(94vw, 420px, max(220px, calc(100dvh - 380px)));
+        width: min(94vw, 420px, max(220px, calc(100dvh - 424px)));
         gap: 8px;
       }
 
@@ -306,10 +375,14 @@
 
 <body>
   <main class="game-wrapper">
+    <div class="screen-actions">
+      <button id="soundButton" aria-pressed="true">SOUND</button>
+      <button type="button" data-action="leaderboard" hidden>HIGHSCORES</button>
+    </div>
+
     <section class="screen" aria-label="Snake display">
       <div class="screen-top">
         <span>SNAKE</span>
-        <button id="soundButton" aria-pressed="true">SOUND</button>
         <span class="scoreboard">
           <span>SCORE <span id="score">0</span></span>
           <span>HIGH <span id="highScore">0</span></span>
@@ -352,6 +425,17 @@
       </div>
     </div>
   </main>
+
+  <dialog class="leaderboard-dialog" aria-labelledby="leaderboard-title">
+    <h2 id="leaderboard-title">HIGHSCORES</h2>
+    <ol data-leaderboard-list></ol>
+    <form data-leaderboard-score-form hidden>
+      <label for="leaderboard-name">ENTER YOUR NAME</label>
+      <input id="leaderboard-name" name="name" maxlength="20" autocomplete="nickname" required />
+      <button type="submit">SAVE SCORE</button>
+    </form>
+    <menu><button type="button" data-action="close-leaderboard">CLOSE</button></menu>
+  </dialog>
 
   <script>
     const gameRules = (() => {
@@ -624,11 +708,20 @@
     const pauseButton = document.getElementById("pauseButton");
     const restartButton = document.getElementById("restartButton");
     const soundButton = document.getElementById("soundButton");
+    const leaderboardButton = document.querySelector('[data-action="leaderboard"]');
+    const leaderboardDialog = document.querySelector(".leaderboard-dialog");
+    const leaderboardList = document.querySelector("[data-leaderboard-list]");
+    const leaderboardScoreForm = document.querySelector("[data-leaderboard-score-form]");
+    const leaderboardNameInput = document.querySelector("#leaderboard-name");
 
     const gridSize = 18;
     const tileCount = canvas.width / gridSize;
     const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
     const highScoreStorageKey = "snakeBrowserGameHighScore";
+    // Replace the placeholder with the workers.dev URL printed by `npx wrangler deploy`.
+    const LEADERBOARD_API_URL = location.hostname === "localhost"
+      ? "http://localhost:8787"
+      : "https://snake-leaderboard.REPLACE_WITH_YOUR_SUBDOMAIN.workers.dev";
     const storage = browserEffects.createStorage(window.localStorage);
     const soundEffects = browserEffects.createSoundEffects({
       createAudioContext: AudioContextConstructor ? () => new AudioContextConstructor() : null,
@@ -693,6 +786,9 @@
     let nextDirection;
     let score;
     let highScore = storage.loadNumber(highScoreStorageKey);
+    let leaderboardAvailable = false;
+    let onlineEntries = [];
+    let currentRunId = null;
     const gameTimer = browserEffects.createTimer(gameLoop);
     let isRunning;
     let isPaused;
@@ -717,6 +813,74 @@
           soundEffects.play("start");
         });
       }
+    }
+
+    async function leaderboardRequest(method, body) {
+      const response = await fetch(`${LEADERBOARD_API_URL}/leaderboard`, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+        signal: AbortSignal.timeout(1000)
+      });
+
+      if (!response.ok) throw new Error("Leaderboard unavailable");
+      return response.json();
+    }
+
+    function renderOnlineLeaderboard() {
+      leaderboardButton.hidden = !leaderboardAvailable;
+      leaderboardList.replaceChildren();
+
+      for (const entry of onlineEntries) {
+        const item = document.createElement("li");
+        const name = document.createElement("span");
+        const entryScore = document.createElement("span");
+        const details = document.createElement("small");
+        name.textContent = entry.name;
+        entryScore.className = "leaderboard-entry-score";
+        entryScore.textContent = String(entry.score);
+        details.className = "leaderboard-entry-details";
+        details.textContent = `SNAKE · ${new Date(entry.createdAt).toLocaleString("de-DE")}`;
+        item.append(name, entryScore, details);
+        leaderboardList.append(item);
+      }
+    }
+
+    async function refreshOnlineLeaderboard() {
+      try {
+        const result = await leaderboardRequest("GET");
+        onlineEntries = result.entries;
+        leaderboardAvailable = true;
+        renderOnlineLeaderboard();
+      } catch (_) {
+        leaderboardAvailable = false;
+        currentRunId = null;
+        leaderboardButton.hidden = !leaderboardAvailable;
+        if (leaderboardDialog.open) leaderboardDialog.close();
+      }
+    }
+
+    async function requestOnlineRunTicket() {
+      currentRunId = null;
+      if (!leaderboardAvailable) return;
+
+      try {
+        const result = await leaderboardRequest("POST", { action: "start" });
+        currentRunId = result.runId;
+      } catch (_) {
+        leaderboardAvailable = false;
+        leaderboardButton.hidden = !leaderboardAvailable;
+      }
+    }
+
+    function offerOnlineScoreEntry() {
+      if (!leaderboardAvailable || !currentRunId) return;
+      if (onlineEntries.length >= 100 && score < onlineEntries[99].score) return;
+
+      leaderboardScoreForm.hidden = false;
+      leaderboardNameInput.value = "";
+      leaderboardDialog.showModal();
+      leaderboardNameInput.focus();
     }
 
     function updateHighScore() {
@@ -763,6 +927,7 @@
       gameTimer.clear();
       resetRestartConfirmation();
       resetGame();
+      requestOnlineRunTicket();
       startGame();
     }
 
@@ -965,6 +1130,7 @@
       soundEffects.play("gameOver");
       pauseButton.textContent = "PAUSE";
       overlayEffects.show("GAME OVER", `FINAL SCORE: ${score}`, "PLAY");
+      offerOnlineScoreEntry();
     }
 
     function setDirection(newDirection) {
@@ -994,6 +1160,8 @@
         return false;
       }
 
+      if (typeof leaderboardDialog !== "undefined" && leaderboardDialog.open) return false;
+
       if (!isRunning) {
         restartGame();
       }
@@ -1002,6 +1170,8 @@
     }
 
     document.addEventListener("keydown", event => {
+      if (leaderboardDialog.open) return;
+
       const key = event.key.toLowerCase();
 
       if (["arrowup", "w"].includes(key)) {
@@ -1078,6 +1248,43 @@
 
     soundButton.addEventListener("pointerdown", () => {
       toggleSound();
+    });
+
+    leaderboardButton.addEventListener("pointerdown", async () => {
+      leaderboardScoreForm.hidden = true;
+      await refreshOnlineLeaderboard();
+      if (leaderboardAvailable) leaderboardDialog.showModal();
+    });
+
+    leaderboardDialog.addEventListener("click", event => {
+      if (event.target.dataset.action === "close-leaderboard") leaderboardDialog.close();
+    });
+
+    leaderboardScoreForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const name = leaderboardNameInput.value.trim();
+      if (!name || Array.from(name).length > 20 || /[\u0000-\u001F\u007F]/.test(name)) return;
+
+      try {
+        const result = await leaderboardRequest("POST", {
+          action: "submit",
+          runId: currentRunId,
+          name,
+          score
+        });
+        currentRunId = null;
+        leaderboardScoreForm.hidden = true;
+        if (!result.accepted) {
+          leaderboardDialog.close();
+          return;
+        }
+
+        await refreshOnlineLeaderboard();
+      } catch (_) {
+        leaderboardAvailable = false;
+        leaderboardButton.hidden = !leaderboardAvailable;
+        leaderboardDialog.close();
+      }
     });
 
     document.addEventListener("pointerdown", () => {
@@ -1218,6 +1425,7 @@
     }, { passive: true });
 
     resetGame();
+    refreshOnlineLeaderboard();
   </script>
 </body>
 </html>
