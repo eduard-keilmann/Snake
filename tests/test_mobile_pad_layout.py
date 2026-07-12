@@ -61,17 +61,21 @@ class MobilePadLayoutTest(unittest.TestCase):
             self.html,
         )
 
-    def test_sound_toggle_is_visible_and_documented(self):
+    def test_top_action_buttons_use_one_readable_size(self):
         readme = Path("README.md").read_text(encoding="utf-8")
 
         self.assertIn('<button id="soundButton" aria-pressed="true">SOUND</button>', self.html)
+        self.assertIn('data-action="leaderboard" hidden>HIGHSCORES</button>', self.html)
+        self.assertIn(".screen-actions button {", self.html)
+        self.assertIn("padding: 8px 12px;", self.html)
+        self.assertIn("font-size: 0.82rem;", self.html)
         self.assertIn("#soundButton {", self.html)
-        self.assertIn("min-width: 70px;", self.html)
-        self.assertIn("padding: 5px 7px;", self.html)
-        self.assertIn("font-size: 0.68rem;", self.html)
         self.assertIn('color: #1f4f1f;', self.html)
         self.assertIn('#soundButton[aria-pressed="false"] {', self.html)
         self.assertIn("Sound: optional retro-style effects for turns, food, pause/start, and game over", readme)
+
+    def test_mobile_game_field_has_more_height_without_exceeding_viewport_width(self):
+        self.assertIn("width: min(94vw, 420px, max(220px, calc(100dvh - 404px)));", self.html)
 
     def test_sound_is_browser_generated_and_user_toggle_controlled(self):
         self.assertIn("const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;", self.html)

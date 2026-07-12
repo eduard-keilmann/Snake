@@ -25,7 +25,7 @@ class OnlineLeaderboardTest(unittest.TestCase):
 
     def test_online_leaderboard_is_optional_and_uses_the_local_worker(self):
         self.assertIn('"http://localhost:8787"', HTML)
-        self.assertIn("AbortSignal.timeout(1000)", HTML)
+        self.assertIn("AbortSignal.timeout(10000)", HTML)
         self.assertIn("leaderboardButton.hidden = !leaderboardAvailable", HTML)
 
     def test_a_new_run_requests_a_ticket_and_game_over_offers_a_score(self):

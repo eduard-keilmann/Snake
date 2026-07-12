@@ -54,6 +54,11 @@
       gap: 10px;
     }
 
+    .screen-actions button {
+      padding: 8px 12px;
+      font-size: 0.82rem;
+    }
+
     .screen {
       width: 100%;
       background: var(--lcd-bg);
@@ -242,9 +247,6 @@
     }
 
     #soundButton {
-      min-width: 70px;
-      padding: 5px 7px;
-      font-size: 0.68rem;
       letter-spacing: 0;
       color: #1f4f1f;
       border-color: #6e8d5b;
@@ -354,7 +356,7 @@
       }
 
       .game-wrapper {
-        width: min(94vw, 420px, max(220px, calc(100dvh - 424px)));
+        width: min(94vw, 420px, max(220px, calc(100dvh - 404px)));
         gap: 8px;
       }
 
@@ -820,7 +822,7 @@
         method,
         headers: body ? { "Content-Type": "application/json" } : undefined,
         body: body ? JSON.stringify(body) : undefined,
-        signal: AbortSignal.timeout(1000)
+        signal: AbortSignal.timeout(10000)
       });
 
       if (!response.ok) throw new Error("Leaderboard unavailable");
