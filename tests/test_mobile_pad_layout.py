@@ -75,9 +75,9 @@ class MobilePadLayoutTest(unittest.TestCase):
         self.assertIn("Sound: optional retro-style effects for turns, food, pause/start, and game over", readme)
 
     def test_mobile_game_field_has_more_height_without_exceeding_viewport_width(self):
-        self.assertIn("padding: 10px 6px;", self.html)
+        self.assertIn("padding: 10px 2px;", self.html)
         self.assertIn(
-            "width: min(calc(100vw - 12px), 420px, max(220px, calc(100dvh - 396px)));",
+            "width: min(calc(100vw - 4px), 420px, max(220px, calc(100dvh - 396px)));",
             self.html,
         )
 
