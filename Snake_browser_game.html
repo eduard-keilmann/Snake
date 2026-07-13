@@ -430,6 +430,7 @@
 
   <dialog class="leaderboard-dialog" aria-labelledby="leaderboard-title">
     <h2 id="leaderboard-title">HIGHSCORES</h2>
+    <p>Opening highscores pauses a running game. Close, then press space or tap the game screen to resume.</p>
     <ol data-leaderboard-list></ol>
     <form data-leaderboard-score-form hidden>
       <label for="leaderboard-name">ENTER YOUR NAME</label>
@@ -1255,9 +1256,10 @@
     });
 
     leaderboardButton.addEventListener("pointerdown", async () => {
+      if (isRunning && !isPaused) pauseGame();
       leaderboardScoreForm.hidden = true;
-      await refreshOnlineLeaderboard();
       if (leaderboardAvailable) leaderboardDialog.showModal();
+      await refreshOnlineLeaderboard();
     });
 
     leaderboardDialog.addEventListener("click", event => {
@@ -1380,6 +1382,11 @@
         Math.abs(clientY - touchStartY) >= swipeThreshold;
 
       if (movedTooFar) {
+        return;
+      }
+
+      if (isPaused) {
+        pauseGame();
         return;
       }
 

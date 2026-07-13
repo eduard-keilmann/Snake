@@ -45,6 +45,31 @@ class OnlineLeaderboardTest(unittest.TestCase):
             ),
         )
 
+    def test_opening_highscores_pauses_running_game_until_explicit_resume(self):
+        open_handler = re.search(
+            r'leaderboardButton\.addEventListener\("pointerdown", async \(\) => \{(?P<body>[\s\S]*?)\n    \}\);',
+            HTML,
+        )
+
+        self.assertIsNotNone(open_handler)
+        self.assertIn("if (isRunning && !isPaused) pauseGame();", open_handler.group("body"))
+        self.assertLess(
+            open_handler.group("body").index("pauseGame();"),
+            open_handler.group("body").index("leaderboardDialog.showModal();"),
+        )
+        self.assertLess(
+            open_handler.group("body").index("leaderboardDialog.showModal();"),
+            open_handler.group("body").index("await refreshOnlineLeaderboard();"),
+        )
+        self.assertIn("Close, then press space or tap the game screen to resume.", HTML)
+        self.assertRegex(
+            HTML,
+            re.compile(
+                r"function handleTapZone\(clientX, clientY\) \{[\s\S]*?"
+                r"if \(isPaused\) \{\s*pauseGame\(\);\s*return;\s*\}"
+            ),
+        )
+
     def test_failed_refresh_after_score_submission_keeps_highscores_button(self):
         submit_handler = re.search(
             r'leaderboardScoreForm\.addEventListener\("submit", async event => \{(?P<body>[\s\S]*?)\n    \}\);',
