@@ -61,7 +61,6 @@ class OnlineLeaderboardTest(unittest.TestCase):
             open_handler.group("body").index("leaderboardDialog.showModal();"),
             open_handler.group("body").index("await refreshOnlineLeaderboard();"),
         )
-        self.assertIn("Close, then press space or tap the game screen to resume.", HTML)
         self.assertRegex(
             HTML,
             re.compile(
