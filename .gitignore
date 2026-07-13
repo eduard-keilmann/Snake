@@ -3,5 +3,6 @@ __pycache__/
 *.local.md
 .dev.vars
 .wrangler/
+.vscode
 
 .DS_Store
